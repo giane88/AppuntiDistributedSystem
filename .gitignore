@@ -1,0 +1,11 @@
+############
+#File LaTex#
+############
+*.aux
+*.log
+*.toc
+*.out
+*.gz
+*.idx
+*.ind
+*.ilg
