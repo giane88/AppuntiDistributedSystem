@@ -58,4 +58,49 @@ La scalabilità sta diventando uno degli aspetti più importanti dei sistemi dis
 Ed, infine, un sistema può essere scalabile anche dal punto di vista dell'amministrazione ovvero quando comprende molte infrastrutture indipendenti rimane comunque facile da gestire.\\
 La scalabilità richiede di affrontare molti problemi. Prendiamo ad esempio la scalabilità rispetto alla dimensione, alcuni servizi in un sistema distribuito possono essere forniti da un unico server questo fa si che aggiungendo utenti quel particolare server diventa un collo di bottiglia per l'intero sistema. A volte l'uso di un solo server è inevitabile come nel caso della gestione di dati sensibili.
 Per quanto riguarda la scalabilità a livello geografico anch'essa comporta innumerevoli problemi, infatti, la maggior parte dei sistemi distribuiti che lavorano su LAN si basano sulla comunicazione \textbf{sincrona} nella quale un \emph{client} richiede una risorsa e resta in attesa che tale risorsa sia disponibile. Questo meccanismo non è applicabile per sistemi globali nei quali la comunicazione tra due computer può richiedere anche qualceh millisecondo. In oltre si deve tener conto che la comunicazione su WAN(\emph{wide area network}) è inaffidabile e praticamente sempre punto a punto (\emph{pont-to-point}). Al contrario le reti locali più affidabili permettono anche il \emph{broadcasting} ovvero l'invio simultaneo a tutte le macchine delle rete dello stesso messaggio.\\
-Dopo aver visto i problemi di scalabilità ci chiediamo come risolvere tali problemi nei sistemi distribuiti.
+Dopo aver visto i problemi di scalabilità ci chiediamo come risolvere tali problemi nei sistemi distribuiti. I problemi di scaling nei sistemi distribuiti si presentano come problemi nelle prestazioni dovuti alle limitate capacità dei server. Ad oggi esistono soltanto tre tecniche di \emph{scaling}: nascondere le latenze, la distribuzione e la replica.\\
+Nascondere le latenze permette di ottenere la scalabilità geografica; l'idea di base è quella di limitare il più possibile i tempi di attesa delle risposte dai servizi remoti. Alcune possibili soluzioni sono anticipare il più possibili la richiesta al server remoto e durante l'attesa della risposta svolgere qualche altra operazione; questo tipo di comunicazione è detta \textbf{comunicazione asincrona}. Quando arriva una risposta l'applicazione si interrompe e viene richiamato un gestore (\emph{handler}) speciale per completare la richiesta sollevata.
+Inoltre la comunicazione asincrona è spesso utilizzata nei sistemi \emph{batch} e nelle applicazioni \emph{parallele}.\\
+Un'altra soluzione è quella di eseguire un \emph{thread} per la richiesta il quale, anche se si blocca, permette agli altri thread di proseguire.\\
+Esiste una classe di applicazioni, però, che non può utilizzare la comunicazione asincrona, questo tipo di applicazioni sono le applicazioni \emph{interattive} nelle quali il client dopo aver effettuato una richiesta ad un server remoto non ha niente di meglio da fare che aspettare la risposta. In questo caso l'unica cosa da fare è limitare il tempo di attesa e per fare ciò solitamente si sposta il carico di lavoro computazionale che solitamente è svolto dal server sul client. Come ad esempio nel caso di compilazione di \emph{form} per un accesso alla base di dati. Si può inviare al server ogni campo della form per poi aspettare dal server la conferma della correttezza dei dati, oppure, più efficiente è far controllare direttamente al client la correttezza dei dati ed inviare al server l'intera form completa.\\
+Un'altra soluzione ai problemi di scalabilità è la \textbf{distribuzione} che comporta prendere un componente spezzarlo in parti più piccole e distribuire tali parti nel sistema. Un esempio molto noto di questo tipo di tecnica è il DNS (\emph{domain name system}. Lo spazio dei nomi è organizzato in un albero dei \emph{domini} divisi in zone non sovrapposte. I nomi di ogni zona sono gestiti da un unico server.\\
+L'ultima tecnica di scalabilità è la \textbf{replicazione} che consiste nel duplicare quelle risorse che sono maggiormente richieste in modo da evitare colli di bottiglia e bilanciare il carico sulle risorse.
+\subsubsection{Tranelli}
+I sistemi distribuiti si differenziano dal software tradizionale in quanto sono i componenti sono sparsi per la rete. Il fatto di non tenere conto di questa dispersione in fase progettuale rende i sistemi inutilmente complessi. Questi errori sono dovuti a delle ipotesi (false) che ognuno fa quando progetta un'applicazione distribuita:
+\begin{enumerate}
+\item La rete è affidabile
+\item La rete è sicura
+\item La rete è omogenea
+\item La topologia non cambia
+\item La latenza è zero
+\item L'ampiezza di banda è infinita
+\item Il costo di trasporto è zero
+\item C'è un solo amministratore
+\end{enumerate}
+\subsection{Tipi di sistemi distribuiti}
+Esistono diverse categorie di sistemi distribuiti 
+\subsubsection{Sistemi di calcolo distribuiti}
+Una classe di sistemi distribuiti è quella utilizzata per calcoli ad alte prestazioni; questa categoria può essere divisa in due sottogruppi. Nei \textbf{sistemi di calcolo a cluster} l'hardware è composto da una serie di workstation connessi ad una rete locale ad alta velocità e in cui ogni nodo ha lo stesso sistema operativo. Nei \textbf{sistemi con tecnologia grid} invece, si intendono sistemi distribuiti costruiti come un gruppo di computer risiedenti in domini di amministrazione diversi con hardware e software differenti.
+\paragraph{Sistemi di calcolo a cluster} I sistemi di calcolo a \emph{cluster} divennerò popolari quando il rapporto prezzo/prestazioni delle \emph{workstation} divenne vantaggioso. In quasi tutti i casi i sistemi di calcolo a cluster sono utilizzati per per la programmazione parallela.\\
+Un esempio di sistema a cluster molto diffuso è il \textbf{Beowolf} un sistema basato su linux in cui l'accesso al sistema avviene tramite un singolo nodo principale, che gestisce l'allocazione dei programmi sui nodi. In realtà il nodo master esegue il \emph{middleware} necessario per l'esecuzione dei programmi e la gestione del cluster. Una parte fondamentale di questo middleware sono le librerie con il quale è sviluppato che forniscono solo funzionalità di comunicazione basate sui messaggi e non sono in grado di gestire errori, sicurezza ecc.\\
+Un altro sistema cluster molto diffuso è il \textbf{MOSIX} che fa sembrare il cluster un singolo sistema offrendo così ai programmi la trasparenza di distribuzione.
+\paragraph{Grid computing} Al contrario dei sistemi di calcolo a cluster in cui  i componenti hardware sono omogenei nei sistemi \emph{Grid Computing} vi è un alto livello di eterogeneità sia hardware sia software.\\
+Solitamente nella tecnologia grid le risorse di diverse aziende vengono unite per consentire la collaborazione che viene anche detta \textbf{organizzazione virtuale}.
+\subsubsection{Sistemi informativi basati sulle imprese}
+Un'altra classe di sistemi distribuiti si trova in strutture aziendali che si sono confrontate con una gran abbondanza di applicazione in rete ma per le quali l'interoperabilità non è stata facile. In alcuni casi l'integrazione riguardava solamente un server che veniva contattato da diversi client i quali confezzionavano una richiesta e la inviavano a tale server. Un'integrazione più approfondita avrebbe permesso ai client di confezzionare una richiesta diretta a molteplici server che avrebbero eseguito un \textbf{applicazione distribuita}.
+\paragraph{Sistemi transazionali} Sono sistemi incentrati su applicazioni relative a basi di dati. In pratica le operazioni sulle basi di dati sono portate a termine sotto forma di \textbf{transazioni}. In un sistema distribuito transazionale abbiamo la particolarità che all'interno di una transazione possiamo avere delle chiamate a procedura remote ottenendo così un sistema \textbf{RPC transazionale}.
+\subsubsection{Sistemi distribuiti pervasivi}
+I sistemi distribuiti visti fin qui hanno la particolarità di essere caratterizzati dalla stabilità: i nodi sono fissi ed hanno a disposizione una connessione di alta qualità. Con l'introduzione di dispositivi mobili ed embedded però abbiamo a che fare con sistemi distribuiti in cui la caratteristica principale è l'instabilità; tali sistemi sono detti \textbf{sistemi distribuiti pervasivi}. I sistemi pervasivi hanno delle caratteristiche particolari, intanto non esiste un amministratore umano ma dopo una prima configurazione da parte del proprietario tali sistemi devono adattarsi al meglio all'ambiente circostante. Inoltre tali sistemi devono avere tre requisiti fondamentali:
+\begin{itemize}
+\item accettare cambi di contesto
+\item incoraggiare la composizione \emph{ad-hoc}
+\item riconoscere la condivisione di default
+\end{itemize}
+Ovvero un dispositivo deve essere a conoscenza che il suo ambiente è in costante cambiamento e che i dispositivi che compongono il sistema saranno utilizzati in modo diverso da utenti diversi.
+In questo tipo di sistemi non vi è alcun tipo di trasparenza, bensì la distribuzione dei dati dei processi e del controllo è intinseca nei sistemi ed è quindi più efficente esporla che nasconderla.
+Alcuni esempi di sistemi pervasivi sono:
+\begin{itemize}
+\item Sistemi domestici
+\item Sistemi elettronici per l'assistenza sanitaria
+\item Reti di sensori
+\end{itemize}
