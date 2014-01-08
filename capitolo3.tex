@@ -1,0 +1,50 @@
+\label{capitolo3}
+\section{Modelling}
+Nel precedente capitolo abbiamo visto il perchè di alcune scelte architetturali nei sistemi distribuiti; in questo capitolo invece analizzeremo alcuni dei modelli esistenti e di come questi siano realmente utilizzati.
+\subsection{Architettura service oriented}
+Partendo dal concetto di architettura client-server si può pensare di costruire una architettura costruita interamente attorno al concetto di servizio (\emph{service provider, service consumer, service brokers}). Un servizio rappresenta un insieme di funzionalità vagamente legate tra loro che sono messe a disposizione di una unita chiamata \textbf{fornitore di servizi} (\emph{service provider}). Il \textbf{brokers} mantiene la descrizione dei servizi disponibili che possono essere cercati dai \textbf{consumer} che poi li richiamano quando ne hanno bisogno.\\
+Con il termine \emph{orchestration} si indicano l'insieme di invocazioni di determinati servizi in un flusso di lavoro per soddisfare un determinato obiettivo.
+\subsection{REST style}
+Lo stile REST (\emph{REpresentational State Transfert}) è allo stesso tempo un "buon" modo di descrivere il web  e un insieme di principi che definiscono come gli standard del Web dovrebbero essere utilizzati.\\
+Gli obiettivi principali del REST includono :
+\begin{itemize}
+\item La scalabilità delle interazioni tra componenti
+\item Generalità delle interfacce
+\item Sviluppo indipendente dei componenti
+\item Componenti intermedi per ridurre le latenze aumentare la sicurezza ed incapsulare i componenti legacy.
+\end{itemize}
+Le principali caratteristiche del sistema REST sono che anch'esso è basato su un architettura client-server; le interazioni sono di tipo \emph{stateless}, gli stati devono essere trasferiti di volta in volta dal client al server;.
+I dati che giungono come risposta ad una richiesta devono essere etichettati come cacheable oppure non-cacheable; ogni componente non può comunicare con se non con i layer più vicini. I client devono supportare il \emph{code-on-demand}; ed infine, i componenti devono esporre un interfaccia uniforme.\\
+Per quanto riguarda l'ultimo punto le interfacce dei componenti devono soddisfare quattro vincoli principali:
+\begin{itemize}
+\item Tutte le risorse devono essere identificate da un id (solitamente un \emph{URI}) ed ogni risorsa con un id è una risorsa valida
+\item Manipolazione delle risorse tramite la loro rappresentazione, i diversi componenti comunicano tramite il trasferimento di rappresentazioni delle risorse in formati standard (XML) selezionati dinamicamente in base alle capacità o alle informazioni desiderate.
+\item Messaggi auto-descrittivi, i messaggi contengono al loro interno dei metadati che ne indicano il tipo di richiesta oppure il significato delle risposte. Questa tecnica è utilizzabile per parametrizzare le richieste
+\item Link ipermediali, i client cambiano il loro stato attraverso le richieste che avvengono tramite dei link ipermediali.
+\end{itemize}
+\subsubsection{Peer-to-Peer}
+Come visto nel capitolo \ref{capitolo2} nei sistemi peer-to-peer non esistono dei ruoli definiti ma tutti i componendi giocano lo stesso ruolo. Come già detto i sistemi p2p a differenza di quelli client-server permettono di scalare in modo migliore
+\subsection{Object oriented}
+Nel caso \emph{Object Oriented} i componenti distribuiti incapsulano i dati e permettono l'accesso e la modifica solo tramite un interfaccia messa a disposizione da ogni componente. I diversi componenti interagiscono tramite RPC.
+Questo tipo di sistema si basa sul modello p2p ma il più delle volte è utilizzato per implementare meccanismi client-server
+\subsection{Data centered}
+Nel caso incentrato sui dai i componenti comunicano, solitamente in modo passivo, con un repository centrale nel quale i dati possono essere recuperati o aggiunti. La comunicazione avviene tramite chiamata a procedura remote e l'accesso ai repository è solitamente sincronizzato.
+\subsubsection{Il modello Linda}
+Il modello Linda è un modello introdotto negli anni '80 ed incentrato sulla condivisione dei dati, tale modello è usato principalmente nei sistemi di calcolo parallelo.\\
+In questo modello la comunicazione è persistente e basata sul contesto si ottiene così un alto grado di disaccoppiamento.
+Le caratteristiche principali di Linda sono:
+\begin{itemize}
+\item I dati sono memorizzati in sequenza in base al tipo di campi (\emph{tuple})
+\item Le tuple sono memorizzate in uno spazio persistente e globale (\emph{spazio delle tuple})
+\item Operazioni standard come \textbf{out}($t$) che scrive le tuple nello spazio delle tuple \textbf{rd}$(p)$ che legge le tuple che coincidono con il pattern $p$ 
+\end{itemize}
+Il problema principale di questo sistema è che il modello a spazio di tuple non è facilmente scalabile soprattutto quando aumenta l'area del dominio. Il sistema è proattivo, ovvero esso risponde solo a delle richieste.
+\subsection{Event-Based}
+Nei sistemi basati sugli eventi i componenti collaborano per scambiarsi delle informazioni al verificarsi di alcuni \emph{eventi}. In particolare esistono dei componenti che \emph{pubblicano} le informazioni relative all'evento e altri componenti che si \emph{sottoscrivono} a tale eventi.\\
+Il sistema è di tipo asincrono basato su messaggi di tipo multicast ed anonimo in quanto non è importante sapere chi pubblica.
+\subsection{Mobile Code}
+Questo modello è diverso dai precedenti, è basato sull'abilità di reallocare i componenti dei sistemi distribuiti a run-time. Esistono diversi tipi di mobile code:
+\begin{itemize}
+\item \emph{Strong mobility:} è la possibilità del sistema di migrare sia il codice sia lo stato di esecuzione.
+\item \emph{Weak mobility:} è la possibilità di muovere il codice attraverso differenti ambienti di esecuzione
+\end{itemize}
