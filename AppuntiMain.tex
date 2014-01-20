@@ -12,12 +12,19 @@
 \usepackage{varioref}
 \usepackage{xmpincl}
 \usepackage{ccicons}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{subfigure}
 
 
 \usepackage{amsthm}
 
 \theoremstyle{definition}
 \newtheorem{defn}{Definizione}[section]
+
+\addto\captionsitalian{%
+\renewcommand{\lstlistingname}{Codice}}
+\lstloadlanguages{[ANSI]C,Java}
 
 \title{Appunti di Sistemi Distribuiti}
 \author{Matteo Gianello}
@@ -33,6 +40,21 @@
 }
 \makeindex
 \includexmp{licenza}
+
+\lstset{basicstyle=\small\ttfamily,
+keywordstyle=\color{blue}\bfseries,
+commentstyle=\color{green},
+stringstyle=\color{red},
+showstringspaces=true,
+numbers=left,
+frame=single,
+columns=fullflexible,
+breaklines=true,
+float=tb,
+captionpos=b}
+
+
+
 \begin{document}
 \pagestyle{empty}
 \thispagestyle{empty}
@@ -51,7 +73,7 @@ Quest'opera è stata rilasciata con licenza Creative Commons Attribuzione - Non 
 \include{capitolo1}
 \include{capitolo2}
 \include{capitolo3}
-%\include{capitolo4}
+\include{capitolo4}
 %\include{capitolo5}
 
 \end{document}
