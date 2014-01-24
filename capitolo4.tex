@@ -2,21 +2,21 @@
 In questo capitolo vedremo come i processi giochino un ruolo fondamentale nei sistemi distribuiti. Il concetto di processo proviene dall'ambito dei sistemi operativi ed è definito come un programma in esecuzione.\\
 Per organizzare efficacemente un sistema client-server è spesso necessario utilizzare tecniche di \emph{multithreading} in quanto questa tecnica permette ai client e ai server di essere costruiti in modo tale che la comunicazione e l'elaborazione locale siano sovrapposti ottenendo un alto livello di prestazione.
 \subsection{Thread}
-Anche se i processi costituiscono la base di tutti i sistemi, la loro greanularità non è sufficiente a soddisfare i bisogni dei sistemi distribuiti. una gestione più fine, sotto forma di \textbf{thread}, rende più facile la costruzione di applicazioni distribuite e ottenere prestazione migliori.
+Anche se i processi costituiscono la base di tutti i sistemi, la loro granularità non è sufficiente a soddisfare i bisogni dei sistemi distribuiti. una gestione più fine, sotto forma di \textbf{thread}, rende più facile la costruzione di applicazioni distribuite e ottenere prestazione migliori.
 \subsubsection{Introduzione ai threads}
 Prima di capire che cos'è un thread e che ruolo esso gioca nella costruzione di applicazioni distribuite è utile capire che cos'è in realtà un processo e che ruolo ha con i thread.\\
 Per eseguire un programma, un sistema operativo crea un certo numero di processi virtuali. Per tener traccia di questi processi il sistema operativo mantiene aggiornata una \textbf{tabella dei processi} contenente elementi che vanno dalla memorizzazione dei registri della CPU, alla mappe della memoria, alla lista dei file aperti alle informazioni sugli \emph{account} e così via.\\
-Il sistema operativo fa si che processi indipendenti non possano in alcun modo influire sulla correttezza degli altri processi, ovvero, è reso trasparente il fatto che più processi possano condividere concorrentemente la stessa CPU e le altre risorse hardware. Questa concorrenza però è ottenuta ad un prezzzo abbastanza alto; ogni volta che viene creato un processo il sistema operativo deve creare uno spazio degli indirizzi completamente indipendente. Allocare memoria può voler dire inizializzare segmenti di memoria azzerando segmenti dati, copiare il programma in un segmento di testo e preparando uno \emph{stack} per i dati temporanei. Altrettanto costoso è il passaggio tra un processo ed un altro a livello di CPU, in quanto oltre a salvare il contesto è necessario cambiare i registri ed invalidare la cache.\\
-Come un processo un \emph{thread} esegue il suo pezzo di codice indipendentemente dagli altri threads. A differenza dei processi nei threads non si cerca di ottenere un alto grado di trasparenza, in quanto il fatto di cercare di mantenere la trasparenza fa degradare le prestazione; di conseguenza un sistembasato sui thread gestisce l'insieme minimo delle informazioni per gestire la CPU. Infatti, il \textbf{contesto di un thread} è spesso costituito solamente dal contesto della CPU e dalle informazioni per gestire il thread stesso come ad esempio lo stato dovuto al blocco di una variabile \emph{mutex}. \uppercase{è} quindi compito degli sviluppatori proteggere l'accesso ai dati tra i vari threads di un singolo processo.
+Il sistema operativo fa si che processi indipendenti non possano in alcun modo influire sulla correttezza degli altri processi, ovvero, è reso trasparente il fatto che più processi possano condividere concorrentemente la stessa CPU e le altre risorse hardware. Questa concorrenza però è ottenuta ad un prezzo abbastanza alto; ogni volta che viene creato un processo il sistema operativo deve creare uno spazio degli indirizzi completamente indipendente. Allocare memoria può voler dire inizializzare segmenti di memoria azzerando segmenti dati, copiare il programma in un segmento di testo e preparando uno \emph{stack} per i dati temporanei. Altrettanto costoso è il passaggio tra un processo ed un altro a livello di CPU, in quanto oltre a salvare il contesto è necessario cambiare i registri ed invalidare la cache.\\
+Come un processo un \emph{thread} esegue il suo pezzo di codice indipendentemente dagli altri threads. A differenza dei processi nei threads non si cerca di ottenere un alto grado di trasparenza, in quanto il fatto di cercare di mantenere la trasparenza fa degradare le prestazione; di conseguenza un sistema basato sui thread gestisce l'insieme minimo delle informazioni per gestire la CPU. Infatti, il \textbf{contesto di un thread} è spesso costituito solamente dal contesto della CPU e dalle informazioni per gestire il thread stesso come ad esempio lo stato dovuto al blocco di una variabile \emph{mutex}. \uppercase{è} quindi compito degli sviluppatori proteggere l'accesso ai dati tra i vari threads di un singolo processo.
 \paragraph{Utilizzo dei thread nei sistemi non distribuiti}
 Il vantaggio principale dell'utilizzo dei thread nei sistemi non distribuiti deriva dal fatto che in un processo  a singolo thread quando viene effettuata una chiamata di sistema bloccante l'intero processo viene messo in pausa. Come nel caso di un foglio elettronico dove più celle sono collegate tra loro; in questo caso quando l'utente modifica il valore di una cella anche altre celle vengono rielaborate, ma tale rielaborazione è impensabile in un sistema a singolo thread in quanto il processo resterebbe bloccato in attesa di input e non calcolerebbe il valore delle altre celle.\\
 Un altro vantaggio del multithreading è la possibilità di sfruttare il parallelismo quando si esegue il programma su sistemi multiprocessore. Il multithreading è usato anche nelle grandi applicazioni, le quali solitamente sono sviluppate come un insieme di processi cooperanti; tale cooperazione è realizzata tramite meccanismi di comunicazione tra processi (\emph{IPC, interprocess comunication}), ma questi meccanismi solitamente richiedono molti cambi di contesto che ne rallentano notevolmente le prestazioni. Invece di usare i processi un'applicazione può essere costruita mediante l'utilizzo di threads e la comunicazione tra questi avviene mediante l'uso dei dati condivisi, ed il passaggio da un thread all'altro può essere eseguito a livello utente.
 \paragraph{Implementazione dei thread}
-I thread sono spesso forniti sotto forma di pachetto contente le operazioni di creazione e distruzione dei threads sia le operazioni per la loro sincronizzazione come \emph{mutex} e \emph{condition}. Gli approcci per implementare un pacchetto di thread sono due. Il primo è costruire una libreria che viene eseguita completamente a livello utente, il secondo è lasciare che il kernel sia conscio dei threads e si occupi del loro scheduling.\\
+I thread sono spesso forniti sotto forma di pacchetto contente le operazioni di creazione e distruzione dei threads sia le operazioni per la loro sincronizzazione come \emph{mutex} e \emph{condition}. Gli approcci per implementare un pacchetto di thread sono due. Il primo è costruire una libreria che viene eseguita completamente a livello utente, il secondo è lasciare che il kernel sia conscio dei threads e si occupi del loro scheduling.\\
 Usare una libreria utente ha notevoli vantaggi, prima di tutto la creazione e la distruzione dei threads a livello utente è molto meno costosa in quanto il costo è dovuto solo all'allocazione della memoria per creare uno \emph{stack}. Inoltre il cambio di contesto a livello utente può essere fatto con poche istruzioni. L'inconveniente principale dei thread a livello utente però è che una chiamata bloccante di sistema bloccherà l'intero processo e quindi bloccherà tutti i thread del processo.\\
 Questo problema può essere raggirato implementando i threads a livello del kernel ma questo comporta che ogni operazione eseguita su un thread (creazione, distruzione, sincronizzazione e così via) dovrà essere eseguita a livello del kernel richiedendo quindi una chiamata a sistema che risulta essere molto più lenta e costosa come quella di un processo.\\
 La soluzione ai problemi sta nell'uso di una forma ibrida chiamata \textbf{processi lightweight}. Un processo leggero viene eseguito nel contesto di un singolo processo (pesante) e per ogni processo ci possono essere più processi leggeri. Oltre a questi il sistema fornisce un pacchetto a livello utente per i threads mettendo a disposizione le solite operazioni. Il pacchetto dei thread è condivisibile da tutti i processi leggeri; questo significa che ogni processo leggero può eseguire il suo thread. Le applicazioni multithread vengono costruite creando dei thread e successivamente assegnando questi thread a un processo leggero.\\
-Il pacchetto dei thread ha una singola routine per pianificare il thread successivo. Quando si crea un processo leggero gli si assegna uno \emph{stack} e lo si mette alla ricerca di un thread da eseguire. I thread in esecuzione sono sono salvati in una tabella in una tabella alla quale i processi leggeri accedono in mutua esclusione tramite l'uso di \emph{mutex} nello spazio utente. Questo significa che la sincronizzazione tra threads è interamnete eseguita a livello utente senza la necessità di informare il kernel. \\
+Il pacchetto dei thread ha una singola routine per pianificare il thread successivo. Quando si crea un processo leggero gli si assegna uno \emph{stack} e lo si mette alla ricerca di un thread da eseguire. I thread in esecuzione sono sono salvati in una tabella in una tabella alla quale i processi leggeri accedono in mutua esclusione tramite l'uso di \emph{mutex} nello spazio utente. Questo significa che la sincronizzazione tra threads è interamente eseguita a livello utente senza la necessità di informare il kernel. \\
 Nel caso in cui vi sia una chiamata di sistema bloccante il contesto di esecuzione passa dalla modalità utente a quella kernel ma continua comunque nel contesto del processo leggero attuale. Nel momento in cui il processo leggero non può più proseguire allora il sistema può decidere di proseguire con un altro processo leggero ritornando alla modalità utente.\\
 I vantaggi di utilizzare un sistema ibrido sono molti. Innanzitutto la creazione, la distruzione e la sincronizzazione dei threads è relativamente poco costosa in quanto avviene a livello utente. Se un processo ha abbastanza processi leggeri allora una chiamata bloccante di sistema non bloccherà l'intero processo. A livello di architetture multiprocessore processi leggeri diversi possono essere eseguiti su CPU diverse.
 L'unico inconveniente che si presenta è che i processi leggeri devono essere creati e distrutti ma fortunatamente tali operazioni non sono comuni.
@@ -51,7 +51,7 @@ if (ppid < 0) {
 La fork restituisce due copie completamente indipendenti dello stesso processo, questa indipendenza permette la protezione della memoria e la stabilità ma causa dei problemi quando si vuole che diversi processi lavorino sullo stesso problema; infatti sarebbe necessario usare \emph{pipes} oppure \emph{SysV IPC}. Inoltre il costo di switching tra processi multipli è molto alto, la sincronizzazione è lenta ed esistono dei limiti sul numero di processi che possono essere schedulati efficacemente.\\
 Per questo sono stati introdotti i threads che invece possono essere schedulati all'interno del processo e risolvono molti problemi del lavoro multi processo.
 L'API più popolare per creare una applicazione multithread in ambiente UNIX è la \emph{pthread} (\emph{POSIX thread}).\\
-Le operazioni che si possono eseguire con quest'API sono la creazione, la distruzione, la sincronizzazione (\emph{join}), lo scheduling, il controllo dei dati e l'interazione con il processo principale. I threads dello stesso processo condividono le istruzioni di processo, gran parte dei dati, i desscrittori dei file aperti, i segnali e lo user e il group id. Mentre per ogni thread abbiamo un distinto \emph{ThreadID}, un certo numero di registri, uno stack pointer ed una certa priorità come possiamo vedere \figurename~\ref{fig:threadstack}.
+Le operazioni che si possono eseguire con quest'API sono la creazione, la distruzione, la sincronizzazione (\emph{join}), lo scheduling, il controllo dei dati e l'interazione con il processo principale. I threads dello stesso processo condividono le istruzioni di processo, gran parte dei dati, i descrittori dei file aperti, i segnali e lo user e il group id. Mentre per ogni thread abbiamo un distinto \emph{ThreadID}, un certo numero di registri, uno stack pointer ed una certa priorità come possiamo vedere \figurename~\ref{fig:threadstack}.
 \begin{figure}[hbt]
 \subfigure[]{
 \includegraphics[width=7.5cm]{img/stack.png}
@@ -122,7 +122,7 @@ for(t=0; t<NUM_THREADS; t++) {
 }
 \end{lstlisting}
 \paragraph{Joining threads}
-L'operazioni di \emph{join} è uno dei modi nel quale si può implementare la sincronizzazione tra thread.
+L'operazione di \emph{join} è uno dei modi nel quale si può implementare la sincronizzazione tra thread.
 \begin{lstlisting}[language=C]
 int pthread_join(pthread_t thid,void **thread_return)
 \end{lstlisting}
@@ -155,7 +155,7 @@ In questo caso è possibile impostare alcuni parametri dell'oggetto mutex tramit
 In entrambi i casi di inizializzazione l'oggetto mutex è inizializzato \emph{unlocked}. Infine, la routine \texttt{pthread\_mutex\_destroy} permette di rilasciare un mutex di cui non si ha più bisogno.\\
 Esistono tre primitive per la gestione dei mutex, queste sono:
 \begin{itemize}
-\item \texttt{pthread\_mutex\_lock:} che si usa per acquisire un lock su di una variabile, nel caso in cui tale lock sia detenuto da un altro thread il thread che ha richiesto il lock si blocca finche il blocco non viene rilasciato.
+\item \texttt{pthread\_mutex\_lock:} che si usa per acquisire un lock su di una variabile, nel caso in cui tale lock sia detenuto da un altro thread il thread che ha richiesto il lock si blocca finché il blocco non viene rilasciato.
 \item \texttt{pthread\_mutex\_trylock} molto simile alla routine precedente solo che nel caso in cui il blocco sia detenuto da un altro thread allora la routine restituisce un codice di errore che indica \emph{"busy"}; è molto utile nel caso si vogliano prevenire condizioni di deadlock.
 \item \texttt{pthread\_mutex\_unlock:} questa routine permette di rilasciare il lock in possesso del thread ma restituisce un errore nel caso in cui si voglia rilasciare un lock su di una variabile già sbloccata o bloccata da un altro thread.
 \end{itemize}
@@ -163,7 +163,7 @@ Esistono tre primitive per la gestione dei mutex, queste sono:
 \paragraph{Condition variables}
 Mentre i mutex implementano la sincronizzazione tramite il controllo degli accessi sui dati le \emph{condition variables} permettono ai thread di sincronizzarsi in base ad un determinato valore di un dato. Senza quest'aspetto dei thread bisognerebbe implementare un polling per verificare quando una particolare condizione viene riscontrata. Le \emph{condition variables} sono un modo per ottenere lo stesso risultato senza il polling, e possono essere utilizzate anche insieme ai mutex.
 L'utilizzo principale sono tutti quei problemi della categoria\textbf{produttore-consumatore}.\\
-Come per i mutex le condition variable sono dichiarate utilizzando la parolachiave \texttt{pthread\_cond\_t}; per l'inizializzazione esistono due metodi:
+Come per i mutex le condition variabile sono dichiarate utilizzando la parola chiave \texttt{pthread\_cond\_t}; per l'inizializzazione esistono due metodi:
 \begin{itemize}
 \item Statico
 \begin{verbatim}
@@ -179,13 +179,13 @@ Che permettono rispettivamente di inizializzare e distruggere gli attributi dell
 Infine tramite la primitiva \texttt{pthread\_cond\_destroy} è possibile liberare una variabile condizionale che non è più necessaria.\\
 Per la gestione di questo tipo di variabile esistono diverse primitive:
 \begin{itemize}
-\item \texttt{pthread\_cond\_wait} è una routine che il thread finche una determinata condizione non si verifica, se chiamata quando vi è un lock attivo la routine sblocca il mutex e lo blocca nuovamente quando il thread si sveglia.
+\item \texttt{pthread\_cond\_wait} è una routine che il thread finché una determinata condizione non si verifica, se chiamata quando vi è un lock attivo la routine sblocca il mutex e lo blocca nuovamente quando il thread si sveglia.
 \item \texttt{pthread\_cond\_signal} questa routine risveglia gli altri thread in attesa di una \emph{condition variables}
 \item \texttt{pthread\_cond\_brodcast} può essere utilizzata al posto della routine precedente se ci sono più thread bloccati in uno stato di \emph{"wait"}.
 \end{itemize}
 \subsection{Concorrenza in Java}
-Come per il C anche il Java fornisce il supporto alla concorrenza a livello di linguaggio, esso mette a disposizione delle classi per instanziare ed eseguire nuovi thread più i metodi di sincronizzazione e le variabili di condizione.
-Il modo più semplice per creare un thread è quello di utilizzare la classe \texttt{java.lan.Thread} in questo caso è sempre necessario implementare un metodo \texttt{run()}.
+Come per il C anche il Java fornisce il supporto alla concorrenza a livello di linguaggio, esso mette a disposizione delle classi per istanziare ed eseguire nuovi thread più i metodi di sincronizzazione e le variabili di condizione.
+Il modo più semplice per creare un thread è quello di utilizzare la classe \texttt{java.lang.Thread} in questo caso è sempre necessario implementare un metodo \texttt{run()}.
 \begin{lstlisting}[language=Java,caption={Uso della classe Thread in Java},label=lst:jthread]
 public class MyThread extends Thread {
 	private String message;
@@ -232,7 +232,7 @@ In un sistema sicuro ogni oggetto protegge se stesso da possibili violazioni del
 \item Esclusione dinamica (Locking)
 \item Esclusione strutturale
 \end{itemize}
-Per quanto riguarda l'\textbf{immutabilità} si ottiene creando le classi in modo che gli oggetti proteccano se stessi come nel Listato\,\ref{lst:immutabile}
+Per quanto riguarda l'\textbf{immutabilità} si ottiene creando le classi in modo che gli oggetti proteggano se stessi come nel Listato\,\ref{lst:immutabile}
 \begin{lstlisting}[language=Java,caption={Esempio di oggetto immutabile},label=lst:immutabile]
 class ImmutableAdder {
 	private final int offset;
@@ -325,8 +325,8 @@ Il punto principale è quello avere un punto di uscita dal thread. Esistono quat
 \end{itemize}
 Per quanto riguarda le collezioni, il framework \texttt{java.util.Collection}  basata su uno schema \emph{Adapter} permette la sincronizzazioni delle classi collection, infatti, ad eccezione di \texttt{Vector} e \texttt{Hashtable} le classi base per le collezioni (come \texttt{java.utili.ArrayList}) sono non sincronizzate. Sono state così costruite una serie di classi sincronizzate attorno alle classi base come la \texttt{Collection.synchronizedList}.\\
 Come abbiamo detto prima però la sincronizzazione non è molto efficiente infatti richiamare un metodo sincronizzato richiede un tempo quattro volte maggiore rispetto a metodi non sincronizzati; inoltre, esso riduce la concorrenza e diminuisce le performance, infine non vi è alcun modo di controllare il meccanismo dei lock.\\
-Con java versione 5 sono stati introdotti nuovi meccanismi di sincronizzazione come la \emph{sincronizzazione condizionata.} Prendiamo conme esempio un parcheggio con una certa capacità e dei metodi che permettono l'arrivo e la partenza di automobili come esemplificato nel Listato\,\ref{lst:monitor}.
-\begin{lstlisting} [language=JAva,caption={Esempio di controllore di un parcheggio},label=lst:monitor]
+Con java versione 5 sono stati introdotti nuovi meccanismi di sincronizzazione come la \emph{sincronizzazione condizionata.} Prendiamo come esempio un parcheggio con una certa capacità e dei metodi che permettono l'arrivo e la partenza di automobili come esemplificato nel Listato\,\ref{lst:monitor}.
+\begin{lstlisting} [language=Java,caption={Esempio di controllore di un parcheggio},label=lst:monitor]
 public class CarParkControl {
 	protected int space;
 	protected int capacity;
@@ -343,7 +343,7 @@ public class CarParkControl {
 	}
 }
 \end{lstlisting}
-Come per il C esistono però dei metodi che permettono una gestione più efficente del controllore rispetto all'uso della syncronized; questi metodi sono:
+Come per il C esistono però dei metodi che permettono una gestione più efficiente del controllore rispetto all'uso della syncronized; questi metodi sono:
 \begin{itemize}
 \item \texttt{public final void notify()}: che risveglia un singolo thread in attesa.
 \item \texttt{public final void notifyAll()}: risveglia tutti i thread in attesa.

@@ -1,8 +1,8 @@
 \section{Architetture}\label{capitolo2}
 I sistemi distribuiti sono spesso definibili come pezzi di software sparsi su molte macchine. Al fine di dominare la loro complessità è necessario che questi sistemi siano organizzati. Un modo semplice per distinguere l'organizzazione di un sistema distribuito, è quello di distinguere l'organizzazione logica dei componenti software e la relativa realizzazione fisica.\\
-Per \emph{architetture software} intendiamo l'organizzazione e l'interazione dei vari componenti software; mentre l'effettiva realizzazione di un sistema distribuito richiede che i componenti software siano istanziati su macchine reali, l'architettura risultante viene detta \emph{architettura di sistema}.Analizzeremo per prime le architetture centralizzate in cui un server implementa la maggior parte delle funzionimentre client remoti accedono al server tramite semplici mezzi di comunicazione.\\
+Per \emph{architetture software} intendiamo l'organizzazione e l'interazione dei vari componenti software; mentre l'effettiva realizzazione di un sistema distribuito richiede che i componenti software siano instanziati su macchine reali, l'architettura risultante viene detta \emph{architettura di sistema}.Analizzeremo per prime le architetture centralizzate in cui un server implementa la maggior parte delle funzioni mentre client remoti accedono al server tramite semplici mezzi di comunicazione.\\
 \subsection{Stili architetturali}
-Iniziamo l'analisi dalle diverse tipologie di architetture software in quanto progettazione e adozione di una adeguata architettura sono fondamentali per la riuscita e la manuntenibilità del sistema.\\
+Iniziamo l'analisi dalle diverse tipologie di architetture software in quanto progettazione e adozione di una adeguata architettura sono fondamentali per la riuscita e la manutenibilità del sistema.\\
 Introduciamo ora la nozione di \emph{stile architetturale} che esprime in termini di componenti mezzi di comunicazione e messaggi scambiati. Un \emph{componente} è un'unità modulare con interfacce ben definite e sostituibile nel suo ambiente.\\
 La comunicazione tra i diversi componenti avviene tramite quello che è definito \emph{connettore} ovvero un sistema che implementa le chiamate a procedure remote piuttosto che il passaggio di messaggi o lo streaming dei dati.\\
 Usando componenti e connettori possiamo ottenere diverse configurazioni che a loro volta sono classificati in diversi \emph{stili architetturali}. I più importanti stili architetturali ad oggi identificati sono:
@@ -23,9 +23,9 @@ Abbiamo visto fino ad ora alcune scelte architetturali, vediamo ora come sono ef
 La prima architettura che analizzeremo è quella \emph{centralizzata}, in quanto pensare ad un sistema in termini di \emph{client} che richiedono dei servizi a dei \emph{server} facilita la comprensione e la gestione dei sistemi distribuiti.\\
 Nel modello client-server i processi sono suddivisi in due gruppi; un \textbf{server} è un processo che implementa uno specifico servizio. Un \textbf{client} è invece un processo che richiede un servizio ad un serve inviandogli una richiesta e quindi attendendo una risposta.\\
 La comunicazione tra client e server può essere implementata per mezzo di un semplice protocollo senza connessione quando la rete sottostante è molto affidabile. In questo caso quando un client richiede un servizio invia un messaggio al server indicando il servizio richiesto e i dati di input. Quest'ultimo all'arrivo della richiesta la processa e confeziona i risultati in un altro messaggio.\\
-L'utilizzo di un protocollo senza connessione ha il vantaggio di essere efficiente fino a quando non abbiamo perdita di pacchetti. Si potrebbe pensare di impostare il client affinché rinvii il messaggio quando non riceve alcuna rsposta, ma non si può stabilire se è stato perso il messaggio o la risposta e quindi il server ha compiuto oppure no l'operazione richiesta. In alcuni casi le richieste sono \emph{idempotenti} ovvero possono essere ripetute senza danni.\\
+L'utilizzo di un protocollo senza connessione ha il vantaggio di essere efficiente fino a quando non abbiamo perdita di pacchetti. Si potrebbe pensare di impostare il client affinché rinvii il messaggio quando non riceve alcuna risposta, ma non si può stabilire se è stato perso il messaggio o la risposta e quindi il server ha compiuto oppure no l'operazione richiesta. In alcuni casi le richieste sono \emph{idem-potenti} ovvero possono essere ripetute senza danni.\\
 Per risolvere il problema della perdita di messaggi, molte architetture client-server utilizzano dei protocolli affidabili orientati alla connessione.
-\paragraph{Stratifficazioni delle applicazioni}
+\paragraph{Stratificazioni delle applicazioni}
 Il problema principale dell'architettura client server è che non vi è una netta distinzione tra quali sono le funzionalità del client e quelle del server; è stata così introdotta una un nuovo tipo di suddivisione delle diverse funzionalità in base che esse siano più vicine all'utente o ai dati. I tre livelli identificati sono:
 \begin{itemize}
 \item il livello dell'interfaccia utente
@@ -42,7 +42,7 @@ La configurazione più utilizzata è quella nel quale il client implementa solo 
 \end{figure}
 Per quanto riguarda il livello dei dati molte volte è gestito da meccanismi che rendono i dati \textbf{persistenti} anche quando non vi sono altre applicazioni in esecuzione. In alcuni casi molto semplici il livello dei dati consiste in un  \emph{filesystem} ma nella maggioranza dei casi si tratta di una \emph{base di dati}
 \paragraph{Architetture multi livello}
-La suddivisione delle applicazioni in tre livelli logici suggerisce anche una distribuzione fisica delle applicazioni client serversu molte macchine, la distribuzione più semplice è quella su due macchine:
+La suddivisione delle applicazioni in tre livelli logici suggerisce anche una distribuzione fisica delle applicazioni client server su molte macchine, la distribuzione più semplice è quella su due macchine:
 \begin{enumerate}
 \item una macchina client che contiene solo i programmi dell'interfaccia utente
 \item una macchina server contenete il resto dei programmi e i dati
@@ -56,7 +56,7 @@ Un esempio pratico ad esempio è quello mostrato in \figurename~\ref{fig:3layer}
 \caption{Esempio di suddivisione dei layer su 3 livelli}\label{fig:3layer}
 \end{figure}
 \subsubsection{Architetture decentralizzate}
-La suddivisione delle architetture client server in livelli denota un tipo di distrinuzione detta \emph{verticale} in quanto i componenti sono divisi su più macchine seguendo un criterio \emph{logico}.\\
+La suddivisione delle architetture client server in livelli denota un tipo di distribuzione detta \emph{verticale} in quanto i componenti sono divisi su più macchine seguendo un criterio \emph{logico}.\\
 Questo tipo di distribuzione è utile con le architetture client-server ma nel caso in cui la distribuzione che conta è quella dei client e dei server e non delle funzioni allora si parla di \emph{frammentazione orizzontale}. Un esempio molto conosciuto di architettura con distribuzione orizzontale sono i \textbf{sistemi peer-to-peer}.\\
 I processi che costituiscono un sistema peer-to-peer sono tutti uguali, di conseguenza l'interazione tra processi è quasi del tutto simmetrica e i processi agiscono sia da client che da server e per questo sono anche detti \textbf{servent}.\\
 Dato questo tipo di comportamento il problema principale delle reti \emph{p2p} è quello di organizzare i processi in una rete \emph{overlay} ovvero una rete nella quale i processi costituiscono i nodi e i collegamenti rappresentano i canali di comunicazione. Con questa struttura un processo non può comunicare direttamente con un altro processo arbitrario ma deve seguire i canali di comunicazione disponibili.\\
@@ -79,7 +79,7 @@ L'uscita dalla rete è molto semplice, infatti, visto che i nodi si scambiano pe
 \paragraph{Gestione della topologia di una rete overlay}
 Anche se i sistemi p2p strutturati e non strutturati sembrano costruire due classi completamente diverse, in realtà selezionando attentamente gli elementi scambiati nelle viste parziali è possibile costruire reti overlay con tipologie specifiche. Un esempio molto interessante sono quelle funzioni che cercano di cogliere la \textbf{vicinanza semantica} dei dati che creano reti \textbf{overlay semantiche} che permettono ricerche efficienti nei sistemi p2p non strutturati.
 \paragraph{Superpeer}
-Specialmente nelle reti non strutturate al crescere delle dimentsioni potrebbe diventare problematico localizzare i dati. Questo è dovuto al fatto non esiste un modo deterministico per instradare una richiesta di ricerca.\\
+Specialmente nelle reti non strutturate al crescere delle dimensioni potrebbe diventare problematico localizzare i dati. Questo è dovuto al fatto non esiste un modo deterministico per instradare una richiesta di ricerca.\\
 Per evitare questo problema molte reti p2p hanno proposto l'utilizzo di nodi speciali che mantengono un indice dei dati. Questo tipo di nodi sono detti \textbf{superpeer}. I superpeer sono organizzati tra loro tramite una rete p2p; si forma così una struttura ad albero. L'accesso ad un normale peer avviene attraverso l'accesso al superpeer.
 \subsubsection{Architetture ibride}
 Fino ad ora abbiamo visto le architetture centralizzate client-server e alcune architetture peer-to-peer ora vediamo come queste due tipologie di architetture possono combinarsi per dare vita ad altre architetture dette \emph{ibride}
@@ -94,7 +94,7 @@ Il middleware in realtà costituisce uno strato tra le applicazioni e le piattaf
 Lo svantaggio più grande è però il fatto che un middleware può  non essere ottimale per una determinata applicazione ciò porta ad avere o middleware molto grandi o a diverse versioni per una specifica classe di applicazioni.
 \subsubsection{Interceptor}
 Concettualmente un \emph{interceptor} non è altro che un costrutto software che interrompe il normale flusso di controllo e consente ad altro codice di essere eseguito. Rendere però un interceptor generico è molto arduo e a volte averne uno con funzionalità limitate migliorerà sia la gestione del software che che il sistema distribuito nel suo complesso.\\
-Il concetto è che un oggetto $A$ può richiamare un metodo appartenete all'oggetto $B$ ache se quest'ultimo risiede su una macchina diversa da $A$.
+Il concetto è che un oggetto $A$ può richiamare un metodo appartenete all'oggetto $B$ anche se quest'ultimo risiede su una macchina diversa da $A$.
 I passi per eseguire questa chiamata remota sono:
 \begin{enumerate}
 \item All'oggetto $A$ viene fornita un interfaccia locale esattamente uguale a quella fornita dall'oggetto $B$; a questo punto $A$ richiama il metodo disponibile nell'interfaccia
