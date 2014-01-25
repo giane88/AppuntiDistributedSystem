@@ -112,3 +112,154 @@ Ricapitolando una chiamata a procedura remota segue i seguenti passi:
 \subsubsection{Passaggio di parametri}
 La funzione del client stub è quella di prendere i propri parametri di impacchettarli e di inviarli al server stub. Il problema è che questa operazione pur sembrando molto semplice in realtà non lo è.
 \paragraph{Passaggio di parametri per valore}
+L'operazione di impacchettare i parametri in un messaggio è detta \textbf{marshaling dei parametri}. Come esempio consideriamo una procedura remota molto semplice come \texttt{add(i,j)} che prende in ingresso due valori interi $i,j$ e restituisce la loro somma aritmetica. L'esecuzione di questa procedura è mostrata in \figurename\,\ref{img:marshal}, nella parte sinistra vediamo la chiamata a tale procedura. Il \emph{client stub} prende i due parametri e li mette in un messaggio semplicemente copiando i valori; insieme ai parametri viene anche inserito il nome (o il numero) della procedura da chiamare in quanto il server potrebbe supportare diverse chiamate. Quando il messaggio raggiunge il server lo \emph{stub} lo esamina per capire quale procedura è richiesta e quindi esegue la chiamata a tale procedura. La chiamata alla procedura è una normale chiamata locale l'unica differenza è che i parametri che vengono passati sono stati estratti dal messaggio e inizializzati nello spazio degli indirizzi dello \emph{stub}.\\
+Quando il server ha completato l'esecuzione il controllo ritorna al \emph{server stub} il quale preleva il risultato e lo inserisce nel messaggio di ritorno al \emph{client stub} il quale effettua \emph{unmarshal} e restituisce il risultato al client.\\
+\begin{figure}
+\centering
+\includegraphics[scale=0.35]{img/rpcparam.png}
+\caption{Passaggio di parametri ad una procedura remota}\label{img:marshal}
+\end{figure}
+I problemi iniziano a sorgere quando due macchine non sono dello stesso tipo, ad esempio i \emph{mainframe IBM} usano una codifica \emph{EBCDIC} per i caratteri mentre i personal computer usano l'\emph{ASCII}; problemi simili possono verificarsi con la rappresentazione degli interi o dei numeri in virgola mobile, in quanto alcune macchine utilizzano la numerazione \textbf{little endian} (numerazione dei bit da destra a a sinistra) altre invece utilizzano la \textbf{big endian} (numerazione da sinistra a destra).
+\paragraph{Passaggio di parametri per referenza}
+Abbiamo visto il passaggio di parametri per valore, che a parte i problemi di rappresentazione non solleva grosse problematiche. Vediamo ora invece il passaggio di parametri tramite puntatori o riferimenti in generale.\\
+Un puntatore ha senso solo nello spazio degli indirizzi del processo in cui è usato. Ad esempio nel  caso della \texttt{read} visto in precedenza il secondo parametro è un puntatore ad un array di caratteri e contiene quindi l'indirizzo al primo elemento dell'array (ad esempio 1000). Se noi passassimo al server tale indirizzo non avrebbe alcun senso in quanto lato server l'indirizzo 1000 potrebbe essere occupato da una istruzione del programma.
+La strategia più semplice in questo caso è che il client stub, visto che conosce sia la tipologia che la dimensione dell'array, faccia una copia dell'array nel messaggio e lo invii al server stub il quale a questo punto può richiamare la procedura utilizzando come indirizzo quello dell'aria di memoria nella quale il server stub ha posizionato l'array appena giunto. Quando il server termina il server stub copia nuovamente l'array nel messaggio e lo restituisce al client. Quando il messaggio giunge al client stub esso applica le modifiche all'array originale. Il meccanismo di passaggio per riferimento è stato così sostituito da un meccanismo di \textbf{copia/ripristino}.\\
+Esistono delle ottimizzazioni per rendere più efficace tale meccanismo, se gli \emph{stub} conoscono se il parametro è un input oppure un output per il server una delle due copie può essere eliminata.
+Abbiamo visto come passare un dato di cui conosciamo la dimensione, nel caso più generale di dati come strutture o oggetti i dati possono essere passati come uno stream di byte, questo meccanismo è chiamato \emph{serializzazione}.
+\paragraph{Specifica dei parametri e generazione degli stub}
+Come abbiamo visto fino ad ora per nascondere una chiamata remota bisogna che il chiamante e il chiamato concordino sul formato dei messaggi e che eseguano gli stessi passi, in altre parole entrambi i lati di una RPC devono seguire lo stesso \emph{protocollo}. Definire il formato dei messaggi non è però sufficiente è necessario anche che il client e il server concordino sulla rappresentazione delle strutture dati e su come i messaggi debbano essere scambiati, come ad esempio utilizzare un protocollo orientato alla connessione come il TCP/IP.\\
+Una volta che il protocollo è stato definito bisogna implementare gli stub, fortunatamente questi differiscono soltanto per le loro interfacce verso le applicazioni .
+Per semplificare le cose le interfacce sono spesso definite tramite un \textbf{linguaggio per la definizione di interfacce} (IDL \emph{interface definition language}). Un'interfaccia specificata tramite IDL viene successivamente compilata in un \emph{client stub} e in un \emph{server stub} unitamente alle interfacce \emph{compile-time} o \emph{run-time}.\\
+Utilizzare un linguaggio per la definizione delle interfacce semplifica considerevolmente le applicazione client-server basate su RPC.
+\subsubsection{RPC in pratica}
+Abbiamo visto fino ad ora la teoria che sta dietro ad una chiamata a procedura remota, vediamo ora invece come viene implementato nella realtà un sistema basato sulle RPC.\\
+Esistono due vie per produrre un sistema che sfrutta le chiamate a procedura remote, il primo è lo standard \emph{de facto} ed è stato introdotto dalla Sun Microsystem. Questo sistema è parte del Network File System dei sistemi UNIX e specifica il formato dei dati tramite un XDR (\emph{eXternal Data Representation}), il protocollo di trasporto utilizzato è indifferentemente il TCP o UDP, il passaggio di parametri è consentito solo tramite copia e con un massimo di un input ed un output per funzione, infine tale meccanismo fornisce dei meccanismi per la criptazione dei dati.\\
+Il secondo meccanismo è quello proposto dall'Open Group ed è chiamato \emph{Distributed Computing Environment} (DCE) ed è un insieme di specifiche e riferimenti. Esistono diverse specifiche per la chiamata di una procedura:
+\begin{itemize}
+\item \textbf{At-Most-Once:} in cui una chiamata non viene portata avanti più di una volta
+\item \textbf{Idempotent:} in questo caso la procedura può essere ripetuta più di una volta senza problemi
+\item \textbf{Broadcast:} marcando una procedura in questo modo la richiesta sarà inoltrata a tutte le macchine della rete
+\end{itemize}
+Come primo passo per creare un'applicazione distribuita dopo aver scelto i meccanismi è quello di chiamare i programmi \emph{uuidgen} i quali generano un prototipo di file IDL contente un identificatore d'interfaccia. A questo punto si completano i file IDL compilando i nomi delle procedure remote ed i loro parametri. Una volta completato il file IDL viene richiamato il compilatore IDL che genera un file \emph{header} da includere nelle applicazione, il \emph{client stub} e il \emph{server stub}. A questo punto il programmatore deve sviluppare le due applicazioni client e server le quali verranno poi compilate e linkate insieme alle librerie e ai rispettivi client e server stub come mostrato in \figurename\,\ref{img:program}
+\begin{figure}
+\centering
+\includegraphics[scale=0.43]{img/program.png}
+\caption{Flusso di sviluppo di un'applicazione distribuita}\label{img:program}
+\end{figure}
+L'ultimo problema che dobbiamo affrontare è come \emph{legare} un client al server che implementa la procedura richiesta dal client. Anche in questo caso Sun e DCE affrontano il problema in due modi differenti. Sun introduce un demone chiamato \texttt{portmap} che associa un server ad una porta, il server occupa una porta disponibile e comunica la sua scelta al \emph{portmap} il client contatta il portmap e richiede la porta necessaria. Il problema principale è che il portmap risolve solo il problema di come stabilire la connessione al server ma deve già conoscere l'ubicazione del server.\\
+DCE, invece utilizza due demoni, uno situato sulla stessa macchina del server che svolge la stessa funzione del portmap, ed un secondo demone situato su un server differente (\emph{directory server}) il quale implementa la trasparenza alla distribuzione. Il meccanismo con il quale tale sistema opera è illustrato nella \figurename\,\ref{img:dcebinding}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.45]{img/dcebinding.png}
+\caption{Esecuzioni di un binding tra client e server in DCE}\label{img:dcebinding}
+\end{figure}
+\subsubsection{Tipi di chiamate a procedure remote}
+Fino ad ora abbiamo dato per scontato che le chiamate a procedura remote fossero solamente di tipo sincrono con sincronizzazione alla fine dell'esecuzione della procedura remota. In alcuni casi, però, tale meccanismo non è efficiente in quanto spesso si sprecano risorse lato client. Una possibile variante sono le RPC asincrone le quali possono essere utilizzate quando non sono attesi valori di ritorno e lo sblocco del client avviene all'arrivo di un acknowledgment quando la richiesta viene presa in carico oppure all'arrivo di una \emph{"promessa"} di risposta che verrà inviata tramite un'altra RPC asincrona dal server.\\
+La Sun inoltre ha implementato delle RPC \emph{batched} che sono particolari chiamate a procedura che non si aspettano un risultato, queste sono immagazzinate (\emph{buffered}) dal client ed inviate in un unica comunicazione quando si presenta una chiamata non-batched.\\
+Un esempio simile avviene nei dispositivi mobili; quando l'host è disconnesso immagazzina le richieste e periodicamente tenta l'invio di richieste, lo stesso viene fatto dal server per l'invio delle risposte. Le richieste e le risposte sono inviate/ricevute su due canali differenti.\\
+\subsubsection{Remote method invocation}
+Il \emph{Remote Method Invocation} (RMI) è simile alle RPC ma è applicato alla programmazioni ad oggetti, un'importante differenza è che i riferimenti oggetti remoti possono essere passati. L'IDL nel caso di RMI è molto più completo includendo eccezioni ed altro in quanto la separazione tra interfaccia ed implementazione è alla base della programmazione ad oggetti.\\
+Le più importanti tecnologie che implementano l'RMI sono \emph{Java RMI} che può essere utilizzata solo implementando in Java ed utilizzando una Java Virtual Machine, è molto semplice e permette il passaggio di parametri sia per riferimento che per valore. \emph{OMG CORBA} è multilinguaggio e multipiattaforma, anche \emph{CORBA} permette il passaggio di parametri sia per riferimento che per valore ma nel secondo caso è compito del programmatore garantire la stessa semantica sia lato server che lato client.
+\subsection{Comunicazione orientata agli oggetti}
+Le chiamate a procedure remote o le RMI aiutano a nascondere la comunicazione nei sistemi distiribuiti, ovvero forniscono un certo grado di trasparenza all'accesso. Tuttavia esistono dei casi in cui questi meccanismi non sono appropriati, come ad esempio nel caso in cui non si è certi che il destinatario  sia attivo nell'istante di invio di un messaggio.La soluzione a queste problematiche sono i \emph{messaggi}.
+\subsection{Comunicazione orientata ai messaggi}
+Le RPC come abbiamo visto hanno di per se una natura sincrona ed è necessario che sia mittente che destinatario siano in esecuzione all'invocazione della procedura. In molti casi però questo non è possibile o non è conveniente perciò le applicazioni vengono sviluppate utilizzando l'invio di messaggi.
+\subsubsection{Comunicazione transiente orientata ai messaggi}
+Molti sistemi e applicazioni distribuite sono costruite direttamente in base al semplice modello orientato ai messaggi fornito dal livello di trasporto. Tali applicazioni sono sviluppate attraverso l'utilizzo delle \emph{socket}.
+\paragraph{Berkeley socket}
+Un'attenzione particolare è stata messa nella standardizzazione dell'interfaccia del livello di trasporto in modo da consentire ai programmatori di far uso dell'intera suit di protocolli attraverso un semplice insieme di primitive.
+Una di queste interfacce è \textbf{l'interfaccia socket}introdotta in UNIX Berkeley, un'altra interfaccia importante è la \textbf{XTI (X/open transport interface)}. Le \emph{socket} e XTI sono molto simili nel modello di programmazione ma differiscono nelle primitive.\\
+Una socket è una porta di comunicazione su cui un'applicazione può scrivere dati da inviare e da cui poter leggere le risposte.
+Le primitive delle socket sono mostrate in \tablename\,\ref{tab:socket}
+\begin{table}
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Primitiva} & \textbf{Significato} \\
+\hline
+\texttt{Socket} & Crea una nuova porta di comunicazione \\
+\texttt{Bind} & Collega un indirizzo locale ad una socket\\
+\texttt{Listen} & Annuncia la disponibilità ad accettare connessioni\\
+\texttt{Accept} & Blocca il chiamante finche la richiesta di connessione non arriva\\
+\texttt{Connect} & Cerca attivamente di stabilire una connessione\\
+\texttt{Send} & Invia dati sulla connessione\\
+\texttt{Receive} & Riceve dati sulla connessione\\
+\texttt{Close} & Rilascia la connessione\\
+\hline
+\end{tabular}
+\caption{Primitive delle socket}\label{tab:socket}
+\end{table}
+In generale i server eseguono le prime quattro primitive nell'ordine in cui sono presentate. Quando viene richiamata la primitiva \texttt{socket} il chiamante crea una nuova porta di comunicazone ed il sistema operativo locale riserva tale risorsa per la ricezione e l'invio di dati. La primitiva \texttt{bind} associa un indirizzo locale con la socket appena creata, il collegamento (\emph{binding}) indica al sistema operativo che il programma vuole ricevere messaggi solo all'indirizzo e sulla porta specificati. La primitiva \texttt{listen} viene richiamata solo nel caso di comunicazione orientata alla connessione, serve per comunicare al SO quante risorse riservare in base al numero di connessioni massime che il server intende accettare. Tramite la primitiva \texttt{accept} il server si blocca fino all'arrivo di una richiesta di connessione, al suo arrivo il sistema operativo locale crea una nuova \emph{socket} con le stesse proprietà dell'originale e la restituisce al chiamate. Questo meccanismo permette al server di effettuare una \emph{fork} e gestire una comunicazione mentre attende una nuova connessione.\\
+Lato client il procedimento è leggermente differente, anche qui è necessario creare la risorsa tramite la primitiva \texttt{socket} ma il \emph{binding} esplicito di tale risorsa non è necessario. La primitiva \texttt{connect} richiede che il chiamante specifichi l'indirizzo a cui va inviata la richiesta di connessione; il client è bloccato fino a quando la connessione non è stata stabilita dopo di che entrambi i lati possono iniziare a scambiarsi messaggi tramite le primitive \texttt{send} e \texttt{receive}. Nelle socket la connessione è simmetrica perciò la chiusura della connessione si ha quando sia il server che il client richiamano la primitiva \texttt{close}.
+Il modello generale di una connessione socket è mostrato in \figurename\,\ref{img:socket}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.35]{img/sockcon.png}
+\caption{Schema generale di una connessione socket}\label{img:socket}
+\end{figure}
+\paragraph{Interfaccia per lo scambio di messaggi}
+Con l'arrivo dei computer ad alte prestazioni gli sviluppatori hanno avuto bisogno di primitive orientate ai messaggi  che consentissero la scrittura di applicazioni in modo facile ed efficiente. Queste caratteristiche fanno si che le primitive siano ad un livello di astrazione sufficentemente alto per sviluppare le applicazioni in modo veloce ma che richiedessero un incremento minimo rispetto alle \emph{socket}, le quali non potevano essere sfruttate in quanto avevano un livello di astrazione troppo basso, ed erano state pensate solo per la comunicazione in rete tramite TCP/IP.\\
+Serviva qualcosa che di adatto a reti ad alta velocità come quelle usate nei \emph{cluster} ed inoltre serviva un'interfaccia più avanzata che potesse gestire funzionalità più avanzate come diverse forme di \emph{buffering} e di sincronizzazione.\\
+Si è arrivati così alla definizione di uno standard chiamato semplicemente \textbf{interfaccia per lo scambio di messaggi} o \textbf{MPI} (\emph{message-passing interface}). Nato come progetto per le applicazioni parallele e come tale adatto alla comunicazione transiente, utilizza la rete sottostante e presuppone che eventi come la caduta di un processo siano fatali.\\
+L'MPI suppone che la comunicazione avvenga tra un gruppo di processi conosciuti, a cui viene assegnato un identificatore  del tipo (\emph{groupID,processID}) che identifica univocamente un processo e che viene utilizzato in sostituzione dell'indirizzo del livello di trasporto.\\
+Il cuore di MPI è costituito da primitive per lo scambio di messaggi per supportare la comunicazione transiente, esse sono elencate nella \tablename\,\ref{tab:mpi}
+\begin{table}
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Primitiva} & \textbf{Significato} \\
+\hline
+\texttt{MPI\_bsend} & Aggiunge un messaggio in uscita a un buffer per l'invio locale \\
+\texttt{MPI\_send} & Invia un messaggio e aspetta finché non viene copiato in un buffer\\
+\texttt{MPI\_ssend} & Invia un messaggio e aspetta finché non inizia la ricezione\\
+\texttt{MPI\_sendrecv} & Invia un messaggio e aspetta la risposta \\
+\texttt{MPI\_isend} & Invia il riferimento a un messaggio in uscita e continua \\
+\texttt{MPI\_issend} & Invia il riferimento a un messaggio e aspetta finché non inizia la ricezione \\
+\texttt{MPI\_recv} & Riceve un messaggio; si blocca se non ce ne sono \\
+\texttt{MPI\_irecv} & Controlla se ci sono messaggi in ingresso, ma non si blocca \\
+\hline
+\end{tabular}
+\caption{Elenco delle primitive MPI}\label{tab:mpi}
+\end{table}
+LA comunicazione transiente asincrona è supportata dalla primitiva \texttt{MPI\_bsend}, il mittente invia un messaggio che viene copiato localmente dal sistema runtime di MPI, quando il messaggio è stato copiato il mittente continua il proprio lavoro. Il sistema runtime locale cancellerà il messaggio dal suo buffer e si occuperà della trasmissione non appena un destinatario chiamerà una \texttt{receive}.\\
+Esiste anche un'operazione di invio bloccante, la \texttt{MPI\_send} la quale blocca il chiamante fino a quando il messaggio non è stato copiato nel buffer runtime del destinatario oppure fino a quando il destinatario non ha iniziato la ricezione. La comunicazione sincrona nella quale il mittente si blocca fino a quando la sua richiesta non è accettata avviene tramite la \texttt{MPI\_ssend}, infine, è disponibile anche una comunicazione fortemente sincrona nella quale il sistema attende fino all'esecuzione della richieste e ricezione della relativa risposta che avviene tramite la primitiva \texttt{MPI\_sendrecv}; quest'ultima corrisponde ad una normale RPC.\\
+Le due primitive \texttt{MPI\_send} e \texttt{MPI\_ssend} hanno delle varianti che evitano di copiare il messaggio nel buffer locale, queste varianti corrispondono ad un tipo di comunicazione asincrona e si ottengono tramite la \texttt{MPI\_isend} tramite il quale il mittente invia un puntatore ad un messaggio dopodiché il sitema runtime di MPI si occupa della comunicazione mentre il mittente prosegue con la sua esecuzione. La primitiva \texttt{MPI\_issend} fornisce la sicurezza che il destinatario abbia accettato il messaggio e stia lavorando sulla richiesta.\\
+Le operazioni \texttt{MPI\_recv} e \texttt{MPI\_irecv} sono rispettivamente le primitive bloccanti e non bloccanti usate per la ricezione dei messaggi.\\
+I diversi tipi di comunicazione sono mostrati in \figurename\,\ref{img:tranmpi}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{img/tranmpi.png}
+\caption{Esempi di comunicazione di tipo transiente}\label{img:tranmpi}
+\end{figure}
+\subsubsection{Comunicazione persistente orientata ai messaggi}
+La classe più importante di servizi middleware orientati ai messaggiè quella conosciuta come \textbf{sistemi a code di messaggi} o semplicemente \textbf{middleware orientati ai messaggi} (MOM, \emph{message oriented middleware}). Questo tipo di sistemi forniscono un ampio supporto alla comunicazione asincrona persistente. La caratteristica fondamentale di questi sistemi è che permettono di memorizzare i messaggi senza che il mittente e il destinatario siano attivi durante la trasmissione del messaggio. 
+\paragraph{Modello a code per lo scambio di messaggi}
+L'idea di base è che le applicazioni comunicano inserendo i messaggi in code specifiche, questi messaggi vengono poi inoltrati tramite una serie di serve e alla fine consegnati al destinatario.\\
+La particolarità è che un mittente non ha la garanzia che un messaggio venga effettivamente letto ma ha solo la garanzia che tale messaggio sarà inserito prima o poi nella coda dei messaggi del destinatario.\\
+Questo aspetto fa si che vi sia un forte disaccoppiamento nelle comunicazioni e non vi è quindi la necessità che il destinatario sia in esecuzione quando viene inviato il messaggio, analogamente non vi è la necessità che il mittente sia in esecuzione quando il messaggio viene prelevato dal destinatario come mostrato in \figurename\,\ref{img:asincrono}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{img/asincrono.png}
+\caption{Esempio di comunicazione persistente orientata ai messaggi}\label{img:asincrono}
+\end{figure}
+Questo significa che un messaggio rimarrà in coda fino a quando non verrà rimosso senza tenere conto se il mittente o il destinatario sono in esecuzione.\\
+I tipi di messaggi che possono essere inviati sono infiniti, l'unica restrizione è che essi siano opportunamente indirizzati; per l'indirizzamento viene fatto fornendo un nome univoco a livello del sistema della coda di destinazione.
+La semplicità di questa architettura si rispecchia anche nella sua interfaccia che è mostrata in \tablename\,\ref{tab:queeue}.
+\begin{table}
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Primitiva} & \textbf{Significato} \\
+\hline
+\texttt{Put} & Aggiunge un messaggio ad una coda specifica \\
+\texttt{Get} & Preleva il primo messaggio in coda nel caso sia vuota si blocca \\
+\texttt{Poll} & Preleva il primo messaggio in coda ma non è bloccante \\
+\texttt{Notify} & Installa un handler da chiamare quando arriva un messaggio nella coda\\
+\hline
+\end{tabular}
+\caption{Interfaccia di base per una coda in un sistema a code di messaggi}\label{tab:queeue}
+\end{table}
+La primitiva \texttt{put} viene richiamata da un mittente per passare un messaggio al sistema sottostante e posizionarlo in una coda specifica. La \texttt{get} è una chiamata bloccante attraverso la quale un processo autorizzato può rimuovere dalla coda specificata il messaggio pendente da più tempo; nel caso la coda sia vuota il processo viene bloccato. La corrispettiva chiamata non bloccante è la \texttt{pull}.
+Molti sistemi inoltre permettono l'installazione di un \emph{handler} sotto forma di \emph{funzione callback} che viene richiamata all'arrivo di ogni nuovo messaggio; molto utili nel caso si volesse avviare un processo per la ricezione dei messaggi.
+\paragraph{Architettura generale di un sistema a code}
+In realtà la vera architettura di un sistema a code di messaggi ha alcune restrizioni; prima fra tutti è che i messaggi possono essere inseriti solo in code \emph{locali} al mittente ovvero code sulla stessa macchina o comunque sulla stessa LAN raggiungibile in modo \emph{efficiente} tramite una RPC
