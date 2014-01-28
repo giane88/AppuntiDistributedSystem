@@ -4,7 +4,7 @@ In questo capitolo analizzeremo prima di tutto le regole che i diversi processi 
 Analizzeremo in seguito tre modelli di comunicazione molto diffusi, le chiamate a procedure remote (RPC, \emph{remote procedure call}), i middleware orientati agli oggetti (MOM, \emph{message-oriented middleware}) e gli \emph{streaming} di dati. Ed infine analizzeremo il problema dell'invio di dati a destinatari multipli, ovvero, il \emph{multicast}.\\
 \subsection{Il modello OSI}
 A causa della mancanza di una memoria condivisa tutta la comunicazione nei sistemi distribuiti avviene mediante tramite l'invio e la ricezione di messaggi a basso livello. Quando un processo \emph{A} vuole comunicare con un processo $B$ prima di tutto costruisce un messaggio nel proprio spazio degli indirizzi e poi effettua una \emph{chiamata di sistema} che fa in modo che il SO si occupi dell'invio del messaggio attraverso la rete fino a raggiungere $B$. Anche se il principio è semplice esistono diversi ostacoli al completamente di questa operazione, prima di tutto $A$ e $B$ devono concordare sul significato dei bit inviati, esistono molti altri aspetti sui quali bisogna accordarsi, come il valore in volt usati per indicare un bit a 1, individuare l'ultimo bit del messaggio, bisogna inoltre capire se un messaggio è stato danneggiato o perso ecc.\\
-Per poter trattare facilmente i numerosi aspetti di una comunicazione la \emph{international standards organization} (ISO) ha sviluppato un modello di riferimento che identifica i vari livelli di comunicazione coinvolti, gli assegna dei nomi standard e identifica le diverse funzionalità per ogni livello. Questo modello è chiamato \textbf{open system interconnection reference model} o più comunemente modello \textbf{ISO OSI} ed è illustrato in \figurename\,\ref{img:osi}
+Per poter trattare facilmente i numerosi aspetti di una comunicazione la \emph{international standard organization} (ISO) ha sviluppato un modello di riferimento che identifica i vari livelli di comunicazione coinvolti, gli assegna dei nomi standard e identifica le diverse funzionalità per ogni livello. Questo modello è chiamato \textbf{open system interconnection reference model} o più comunemente modello \textbf{ISO OSI} ed è illustrato in \figurename\,\ref{img:osi}
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.4]{img/osi.png}
@@ -161,7 +161,7 @@ Un esempio simile avviene nei dispositivi mobili; quando l'host è disconnesso i
 Il \emph{Remote Method Invocation} (RMI) è simile alle RPC ma è applicato alla programmazioni ad oggetti, un'importante differenza è che i riferimenti oggetti remoti possono essere passati. L'IDL nel caso di RMI è molto più completo includendo eccezioni ed altro in quanto la separazione tra interfaccia ed implementazione è alla base della programmazione ad oggetti.\\
 Le più importanti tecnologie che implementano l'RMI sono \emph{Java RMI} che può essere utilizzata solo implementando in Java ed utilizzando una Java Virtual Machine, è molto semplice e permette il passaggio di parametri sia per riferimento che per valore. \emph{OMG CORBA} è multilinguaggio e multipiattaforma, anche \emph{CORBA} permette il passaggio di parametri sia per riferimento che per valore ma nel secondo caso è compito del programmatore garantire la stessa semantica sia lato server che lato client.
 \subsection{Comunicazione orientata agli oggetti}
-Le chiamate a procedure remote o le RMI aiutano a nascondere la comunicazione nei sistemi distiribuiti, ovvero forniscono un certo grado di trasparenza all'accesso. Tuttavia esistono dei casi in cui questi meccanismi non sono appropriati, come ad esempio nel caso in cui non si è certi che il destinatario  sia attivo nell'istante di invio di un messaggio.La soluzione a queste problematiche sono i \emph{messaggi}.
+Le chiamate a procedure remote o le RMI aiutano a nascondere la comunicazione nei sistemi distribuiti, ovvero forniscono un certo grado di trasparenza all'accesso. Tuttavia esistono dei casi in cui questi meccanismi non sono appropriati, come ad esempio nel caso in cui non si è certi che il destinatario  sia attivo nell'istante di invio di un messaggio.La soluzione a queste problematiche sono i \emph{messaggi}.
 \subsection{Comunicazione orientata ai messaggi}
 Le RPC come abbiamo visto hanno di per se una natura sincrona ed è necessario che sia mittente che destinatario siano in esecuzione all'invocazione della procedura. In molti casi però questo non è possibile o non è conveniente perciò le applicazioni vengono sviluppate utilizzando l'invio di messaggi.
 \subsubsection{Comunicazione transiente orientata ai messaggi}
@@ -180,7 +180,7 @@ Le primitive delle socket sono mostrate in \tablename\,\ref{tab:socket}
 \texttt{Socket} & Crea una nuova porta di comunicazione \\
 \texttt{Bind} & Collega un indirizzo locale ad una socket\\
 \texttt{Listen} & Annuncia la disponibilità ad accettare connessioni\\
-\texttt{Accept} & Blocca il chiamante finche la richiesta di connessione non arriva\\
+\texttt{Accept} & Blocca il chiamante finché la richiesta di connessione non arriva\\
 \texttt{Connect} & Cerca attivamente di stabilire una connessione\\
 \texttt{Send} & Invia dati sulla connessione\\
 \texttt{Receive} & Riceve dati sulla connessione\\
@@ -189,7 +189,7 @@ Le primitive delle socket sono mostrate in \tablename\,\ref{tab:socket}
 \end{tabular}
 \caption{Primitive delle socket}\label{tab:socket}
 \end{table}
-In generale i server eseguono le prime quattro primitive nell'ordine in cui sono presentate. Quando viene richiamata la primitiva \texttt{socket} il chiamante crea una nuova porta di comunicazone ed il sistema operativo locale riserva tale risorsa per la ricezione e l'invio di dati. La primitiva \texttt{bind} associa un indirizzo locale con la socket appena creata, il collegamento (\emph{binding}) indica al sistema operativo che il programma vuole ricevere messaggi solo all'indirizzo e sulla porta specificati. La primitiva \texttt{listen} viene richiamata solo nel caso di comunicazione orientata alla connessione, serve per comunicare al SO quante risorse riservare in base al numero di connessioni massime che il server intende accettare. Tramite la primitiva \texttt{accept} il server si blocca fino all'arrivo di una richiesta di connessione, al suo arrivo il sistema operativo locale crea una nuova \emph{socket} con le stesse proprietà dell'originale e la restituisce al chiamate. Questo meccanismo permette al server di effettuare una \emph{fork} e gestire una comunicazione mentre attende una nuova connessione.\\
+In generale i server eseguono le prime quattro primitive nell'ordine in cui sono presentate. Quando viene richiamata la primitiva \texttt{socket} il chiamante crea una nuova porta di comunicazione ed il sistema operativo locale riserva tale risorsa per la ricezione e l'invio di dati. La primitiva \texttt{bind} associa un indirizzo locale con la socket appena creata, il collegamento (\emph{binding}) indica al sistema operativo che il programma vuole ricevere messaggi solo all'indirizzo e sulla porta specificati. La primitiva \texttt{listen} viene richiamata solo nel caso di comunicazione orientata alla connessione, serve per comunicare al SO quante risorse riservare in base al numero di connessioni massime che il server intende accettare. Tramite la primitiva \texttt{accept} il server si blocca fino all'arrivo di una richiesta di connessione, al suo arrivo il sistema operativo locale crea una nuova \emph{socket} con le stesse proprietà dell'originale e la restituisce al chiamate. Questo meccanismo permette al server di effettuare una \emph{fork} e gestire una comunicazione mentre attende una nuova connessione.\\
 Lato client il procedimento è leggermente differente, anche qui è necessario creare la risorsa tramite la primitiva \texttt{socket} ma il \emph{binding} esplicito di tale risorsa non è necessario. La primitiva \texttt{connect} richiede che il chiamante specifichi l'indirizzo a cui va inviata la richiesta di connessione; il client è bloccato fino a quando la connessione non è stata stabilita dopo di che entrambi i lati possono iniziare a scambiarsi messaggi tramite le primitive \texttt{send} e \texttt{receive}. Nelle socket la connessione è simmetrica perciò la chiusura della connessione si ha quando sia il server che il client richiamano la primitiva \texttt{close}.
 Il modello generale di una connessione socket è mostrato in \figurename\,\ref{img:socket}.
 \begin{figure}
@@ -198,7 +198,7 @@ Il modello generale di una connessione socket è mostrato in \figurename\,\ref{i
 \caption{Schema generale di una connessione socket}\label{img:socket}
 \end{figure}
 \paragraph{Interfaccia per lo scambio di messaggi}
-Con l'arrivo dei computer ad alte prestazioni gli sviluppatori hanno avuto bisogno di primitive orientate ai messaggi  che consentissero la scrittura di applicazioni in modo facile ed efficiente. Queste caratteristiche fanno si che le primitive siano ad un livello di astrazione sufficentemente alto per sviluppare le applicazioni in modo veloce ma che richiedessero un incremento minimo rispetto alle \emph{socket}, le quali non potevano essere sfruttate in quanto avevano un livello di astrazione troppo basso, ed erano state pensate solo per la comunicazione in rete tramite TCP/IP.\\
+Con l'arrivo dei computer ad alte prestazioni gli sviluppatori hanno avuto bisogno di primitive orientate ai messaggi  che consentissero la scrittura di applicazioni in modo facile ed efficiente. Queste caratteristiche fanno si che le primitive siano ad un livello di astrazione sufficientemente alto per sviluppare le applicazioni in modo veloce ma che richiedessero un incremento minimo rispetto alle \emph{socket}, le quali non potevano essere sfruttate in quanto avevano un livello di astrazione troppo basso, ed erano state pensate solo per la comunicazione in rete tramite TCP/IP.\\
 Serviva qualcosa che di adatto a reti ad alta velocità come quelle usate nei \emph{cluster} ed inoltre serviva un'interfaccia più avanzata che potesse gestire funzionalità più avanzate come diverse forme di \emph{buffering} e di sincronizzazione.\\
 Si è arrivati così alla definizione di uno standard chiamato semplicemente \textbf{interfaccia per lo scambio di messaggi} o \textbf{MPI} (\emph{message-passing interface}). Nato come progetto per le applicazioni parallele e come tale adatto alla comunicazione transiente, utilizza la rete sottostante e presuppone che eventi come la caduta di un processo siano fatali.\\
 L'MPI suppone che la comunicazione avvenga tra un gruppo di processi conosciuti, a cui viene assegnato un identificatore  del tipo (\emph{groupID,processID}) che identifica univocamente un processo e che viene utilizzato in sostituzione dell'indirizzo del livello di trasporto.\\
@@ -223,7 +223,7 @@ Il cuore di MPI è costituito da primitive per lo scambio di messaggi per suppor
 \end{table}
 LA comunicazione transiente asincrona è supportata dalla primitiva \texttt{MPI\_bsend}, il mittente invia un messaggio che viene copiato localmente dal sistema runtime di MPI, quando il messaggio è stato copiato il mittente continua il proprio lavoro. Il sistema runtime locale cancellerà il messaggio dal suo buffer e si occuperà della trasmissione non appena un destinatario chiamerà una \texttt{receive}.\\
 Esiste anche un'operazione di invio bloccante, la \texttt{MPI\_send} la quale blocca il chiamante fino a quando il messaggio non è stato copiato nel buffer runtime del destinatario oppure fino a quando il destinatario non ha iniziato la ricezione. La comunicazione sincrona nella quale il mittente si blocca fino a quando la sua richiesta non è accettata avviene tramite la \texttt{MPI\_ssend}, infine, è disponibile anche una comunicazione fortemente sincrona nella quale il sistema attende fino all'esecuzione della richieste e ricezione della relativa risposta che avviene tramite la primitiva \texttt{MPI\_sendrecv}; quest'ultima corrisponde ad una normale RPC.\\
-Le due primitive \texttt{MPI\_send} e \texttt{MPI\_ssend} hanno delle varianti che evitano di copiare il messaggio nel buffer locale, queste varianti corrispondono ad un tipo di comunicazione asincrona e si ottengono tramite la \texttt{MPI\_isend} tramite il quale il mittente invia un puntatore ad un messaggio dopodiché il sitema runtime di MPI si occupa della comunicazione mentre il mittente prosegue con la sua esecuzione. La primitiva \texttt{MPI\_issend} fornisce la sicurezza che il destinatario abbia accettato il messaggio e stia lavorando sulla richiesta.\\
+Le due primitive \texttt{MPI\_send} e \texttt{MPI\_ssend} hanno delle varianti che evitano di copiare il messaggio nel buffer locale, queste varianti corrispondono ad un tipo di comunicazione asincrona e si ottengono tramite la \texttt{MPI\_isend} tramite il quale il mittente invia un puntatore ad un messaggio dopodiché il sistema runtime di MPI si occupa della comunicazione mentre il mittente prosegue con la sua esecuzione. La primitiva \texttt{MPI\_issend} fornisce la sicurezza che il destinatario abbia accettato il messaggio e stia lavorando sulla richiesta.\\
 Le operazioni \texttt{MPI\_recv} e \texttt{MPI\_irecv} sono rispettivamente le primitive bloccanti e non bloccanti usate per la ricezione dei messaggi.\\
 I diversi tipi di comunicazione sono mostrati in \figurename\,\ref{img:tranmpi}.
 \begin{figure}
@@ -232,7 +232,7 @@ I diversi tipi di comunicazione sono mostrati in \figurename\,\ref{img:tranmpi}.
 \caption{Esempi di comunicazione di tipo transiente}\label{img:tranmpi}
 \end{figure}
 \subsubsection{Comunicazione persistente orientata ai messaggi}
-La classe più importante di servizi middleware orientati ai messaggiè quella conosciuta come \textbf{sistemi a code di messaggi} o semplicemente \textbf{middleware orientati ai messaggi} (MOM, \emph{message oriented middleware}). Questo tipo di sistemi forniscono un ampio supporto alla comunicazione asincrona persistente. La caratteristica fondamentale di questi sistemi è che permettono di memorizzare i messaggi senza che il mittente e il destinatario siano attivi durante la trasmissione del messaggio. 
+La classe più importante di servizi middleware orientati ai messaggi è quella conosciuta come \textbf{sistemi a code di messaggi} o semplicemente \textbf{middleware orientati ai messaggi} (MOM, \emph{message oriented middleware}). Questo tipo di sistemi forniscono un ampio supporto alla comunicazione asincrona persistente. La caratteristica fondamentale di questi sistemi è che permettono di memorizzare i messaggi senza che il mittente e il destinatario siano attivi durante la trasmissione del messaggio. 
 \paragraph{Modello a code per lo scambio di messaggi}
 L'idea di base è che le applicazioni comunicano inserendo i messaggi in code specifiche, questi messaggi vengono poi inoltrati tramite una serie di serve e alla fine consegnati al destinatario.\\
 La particolarità è che un mittente non ha la garanzia che un messaggio venga effettivamente letto ma ha solo la garanzia che tale messaggio sarà inserito prima o poi nella coda dei messaggi del destinatario.\\
@@ -262,4 +262,149 @@ La semplicità di questa architettura si rispecchia anche nella sua interfaccia 
 La primitiva \texttt{put} viene richiamata da un mittente per passare un messaggio al sistema sottostante e posizionarlo in una coda specifica. La \texttt{get} è una chiamata bloccante attraverso la quale un processo autorizzato può rimuovere dalla coda specificata il messaggio pendente da più tempo; nel caso la coda sia vuota il processo viene bloccato. La corrispettiva chiamata non bloccante è la \texttt{pull}.
 Molti sistemi inoltre permettono l'installazione di un \emph{handler} sotto forma di \emph{funzione callback} che viene richiamata all'arrivo di ogni nuovo messaggio; molto utili nel caso si volesse avviare un processo per la ricezione dei messaggi.
 \paragraph{Architettura generale di un sistema a code}
-In realtà la vera architettura di un sistema a code di messaggi ha alcune restrizioni; prima fra tutti è che i messaggi possono essere inseriti solo in code \emph{locali} al mittente ovvero code sulla stessa macchina o comunque sulla stessa LAN raggiungibile in modo \emph{efficiente} tramite una RPC
+In realtà la vera architettura di un sistema a code di messaggi ha alcune restrizioni; prima fra tutti è che i messaggi possono essere inseriti solo in code \emph{locali} al mittente ovvero code sulla stessa macchina o comunque sulla stessa LAN raggiungibile in modo \emph{efficiente} tramite una RPC. Una coda di questo tipo è chiamata \textbf{coda sorgente}.
+Analogamente i messaggi possono essere letti soltanto da code locali dette \textbf{code di destinazione}. \uppercase{è} responsabilità del sistema fare in modo che coda sorgente e coda destinazione siano disponibili e che i messaggi vengano recapitati nel modo corretto. \\
+L'insieme delle code è distribuito su molte macchine perciò il sistema deve mantenere una corrispondenza tra le code e la loro posizione, questo significa mantenere una base di dati di \textbf{nomi delle code} e delle rispettive posizioni sulla rete come mostrato in \figurename\,\ref{img:queeuename}
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{img/queeuename.png}
+\caption{Esempio di uso di basi di dati per i nomi delle code}\label{img:queeuename}
+\end{figure}
+Questo meccanismo è molto simile all'uso del \emph{domain name system} (DNS). Le code sono gestite dai \textbf{gestori delle code} i quali interagiscono direttamente con le applicazioni che inviano e ricevono messaggi; esistono però gestori speciali che agiscono da \emph{router} o \textbf{relay} che inoltrano messaggi in ingresso ad altri gestori. in questo modo un sistema a code può crescere e diventare una rete \textbf{\emph{overlay}} completa basata un una rete di computer esistente.\\
+I \emph{relay} possono essere utili per molti motivi, nei sistemi nei quali non è possibile mantenere un \emph{naming server} generale il quale possa mantenere dinamicamente la corrispondenza coda-posizione e la topologia della rete è statica ed ogni gestore delle code deve mantenere una copia della corrispondenze coda-posizione allora in questo caso possono verificarsi problemi di gestione della rete. Una soluzione possibile è quella di utilizzare dei \emph{router} i quali conoscono la topologia della rete. Quando un mittente $A$ inserisce un messaggio per un destinatario $B$ allora il messaggio è trasferito al più vicino \emph{router} chiamato $R1$ come si vede nella \figurename\,\ref{img:queeuerouter}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{img/queeuerouter.png}
+\caption{Organizzazione generale dei sistemi a code di messaggi con \emph{router}}\label{img:queeuerouter}
+\end{figure}
+A questo punto il router $R1$ potrebbe dedurre da alcune informazioni contenute nel messaggio che la direzione verso la quale inoltrare il messaggio è quella di $R2$. In questo modo è necessario solo aggiornare i router su quali code vengono aggiunte o eliminate mentre i gestori devono solo preoccuparsi di individuare il router più vicino.\\
+I \emph{relay} agevolano la costruzione di sistemi a code di messaggi scalabili, tuttavia al crescere della rete diventa impossibile la gestione manuale della rete, la soluzione è quella di adottare sistemi di \emph{routing} dinamici come avviene nelle reti di computer.\\
+Un altro vantaggio dei \emph{relay} è quello di consentire un'elaborazione secondaria dei messaggi per ragioni di sicurezza e tolleranza ai guasti; oppure per trasformare i messaggi in una forma comprensibile al destinatario, in questo caso parliamo di \emph{gateway}; infine, i relay possono essere usati per effettuare il \emph{multicasting}.
+\paragraph{Broker di messaggi}
+Una caratteristica importante dei sistemi a code di messaggi è  la possibilità di integrare applicazioni nuove con alcune già esistenti in un unico sistema distribuito. L'integrazione richiede che tutte le applicazioni del sistema possano interpretare i messaggi che ricevono, questo implica che i messaggi in uscita da un'applicazione siano nello stesso formato di quelli del destinatario.\\
+Questa caratteristica non è sempre garantita da tutte le applicazioni. Una soluzione è quella di concordare un \emph{protocollo} comune per tutte le applicazioni ma sfortunatamente tale meccanismo non funziona con i sistemi a code di messaggi in quanto il livello di astrazione è troppo alto e un meccanismo di questo genere ha senso solo se le informazioni da scambiare sono molte.\\
+L'altro approccio è quello di provare a convivere con tutti questi formati e fornire un meccanismo di conversione il più semplice possibile. Nei sistemi a code di messaggi tale conversione è gestita da alcuni nodi speciali chiamati \textbf{broker di messaggi}. Un \emph{broker} agisce da \emph{gateway} a livello applicativo, il suo obiettivo è quello di convertire i messaggi in ingresso in modo che siano comprensibili dall'applicazione destinataria.\\
+In un sistema a code di messaggi un \emph{broker} non è altro che un'applicazione come si può vedere anche da \figurename\,\ref{img:broker}.\\
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{img/broker.png}
+\caption{Esempio generale di un broker}\label{img:broker}
+\end{figure}
+La funzione più comune di un \emph{broker} è quella di effettuare l'\textbf{integrazione di applicazioni aziendali} (EAI,\emph{enterprise application integration}), in questo caso oltre a convertire i messaggi il broker deve trovare una corrispondenza tra le applicazioni basandosi sui messaggi che si sono scambiati. In tale modello, chiamato \textbf{publish/subscribe}, le applicazioni inviano messaggi sotto forma di \emph{publishing} riguardo ad un determinato argomento $X$ al broker, le applicazioni che hanno dichiarato il loro interesse all'argomento $X$ tramite una \emph{subscription} riceveranno questi messaggi dal broker. Esistono due tipologie di sottoscrizioni, la \emph{subject-based} nella quale l'argomento è determinato a priori, oppure, la \emph{content-based} nella quale la sottoscrizione contiene un'espressione (filtro) che permette il filtraggio degli eventi in base al loro contenuto.\\
+Il cuore di un broker è il \emph{repository} delle regole e dei programmi che consentono di trasformare un messaggio del tipo $T1$ in un messaggio del tipo $T2$.
+\subsubsection{Event dispatcher}
+L'\emph{event dispacher} è quel componente che, in un sistema basato sugli eventi, raccoglie le sottoscrizioni e distribuisce gli eventi ai vari client. Questo componente può essere centralizzato, oppure, per ragioni di scalabilità, distribuito; nel caso distribuito un insieme di broker sono organizzati in una rete \emph{overlay} cooperante per raccogliere le sottoscrizioni, la tipologia della rete può essere ciclica o aciclica.\\
+Nel caso di rete aciclica ogni broker immagazzina le sottoscrizioni dei client a lui collegati, i messaggi sono scambiati tra i diversi broker e inoltrati ai client solo se si sono sottoscritti.
+Per quanto riguarda le sottoscrizioni ogni broker inoltra le sottoscrizioni agli altri ma non viene mai mandata la stessa sottoscrizione due volte sullo stesso collegamento. I messaggi seguono le stesse vie delle sottoscrizioni. In particolare ogni volta che un broker riceve un messaggio esso effettua un matching con un lista di filtri per determinare una lista di inoltro. L'efficienza di questo meccanismo dipende dalla complessità del linguaggio di sottoscrizione e dall'algoritmo di forwarding utilizzato. Il più comune nel caso aciclico è il forwarding di tipo gerarchico; messaggi e sottoscrizioni sono inoltrati verso la radice dell'albero, i messaggi ridiscendono solo se esiste un matching nelle sottoscrizioni lungo il percorso intrapreso.\\
+Nel caso di grafo ciclico un sistema di tipo DHT (\emph{distributed hash table}) organizza i nodi in una struttura nella quale il routing è efficiente e avviene nei nodi nei quali si ha un ID più piccolo o al più uguale ad un altro ID.
+Le sottoscrizioni a dei messaggi aventi un certo soggetto $S$ vengono così processate:
+\begin{itemize}
+\item Si calcola l'hash (\emph{Hs}) dell'argomento $S$ 
+\item Si utilizza la DHT per inoltrare la sottoscrizione a \emph{succ(Hs)}
+\item Durante l'inoltro della sottoscrizione verso $succ(Hs)$ si comunicano delle informazioni ai nodi attraversati per il successivo inoltro dei messaggi.
+\end{itemize}
+La pubblicazione dei messaggi aventi un certo argomento $S$ vengono così inoltrati:
+\begin{itemize}
+\item Si calcola l'hash dell'argomento $Hs$
+\item Si utilizza la DHT per inoltrare il messaggio al nodo $succ(Hs)$
+\item Durante l'inoltro verso $succ(Hs)$ utilizza le informazioni lasciate dalla sottoscrizione per inoltrare il messaggio ai nodi interessati.
+\end{itemize}
+Per quanto riguarda sistemi \emph{content based} esistono diversi meccanismi sia per il \emph{forwarding} sia per \emph{routing}, per quanto riguarda il forwarding le tecniche utilizzate sono:
+\begin{itemize}
+\item Per Source Forwarding (PSF)
+\item Improved per source forwarding (iPSF)
+\item Per receiver forwarding (PRF)
+\end{itemize}
+Mentre per quanto riguarda il routing solitamente si utilizzano:
+\begin{itemize}
+\item Distance Vector (DV)
+\item Link-State (LS)
+\end{itemize}
+\paragraph{PSF: Per-Source Forwarding}
+Nel caso del PSF si parte da un nodo e si calcola l'albero a cammino minimo; ottenuto quest'albero si riempe una tabella associata ad ogni nodo in questo modo con un campo \emph{sorgente} un campo \emph{successivo} ed un campo \emph{predicato} come mostrato in \figurename\,\ref{img:psf}.
+Come \emph{sorgente} si utilizza il nodo radice utilizzato per calcolare lo SPT, come \emph{successivo} si utilizza uno dei nodi figli a quello in cui si sta riempiendo la tabella e nel campo \emph{predicato} si esegue l'operazione di \emph{or logico} sui predicati dei nodi figli.
+Nell'esempio di \figurename\,\ref{img:psf} abbiamo che il nodo numero 1 è utilizzato per calcolare l'albero a costo minimo, la tabella che si sta calcolando è quella del nodo 2 i valori successivi sono $\{4,5,8\}$ i predicati che si ottengono sono \emph{Pf} per quanto riguarda 4, \emph{Pg+Pd} per quanto riguarda il nodo 5.
+Ricapitolando definendo il grafo $G = (V,E)$ dove $v \in V$ e definendo i predicati di un nodo come $pred(u)$ allora possiamo definire una serie di passaggi per il calcolo del PSF:
+\begin{enumerate}
+\item Per ogni nodo $v$ si calcola il corrispettivo albero di costo minimo.
+\item Per ogni albero partendo dalla radice $v$ si calcolano tutti i figli che chiamiamo $u$.
+\item Per ogni $u$ si compila una tabella con tre campi \emph{sorgente}, \emph{next-hop} e \emph{predicato}.
+\item In \emph{sorgente} si mette il valore corrente di $v$
+\item In \emph{next-hop} si mette uno dei vicini di $u$
+\item In \emph{predicato} si effettua la somma logica dei predicati raggiungibili da \emph{next-hop}
+\end{enumerate}
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{img/psf.png}
+\caption{Esempio di PSF}\label{img:psf}
+\end{figure}
+\paragraph{iPSF: improved PSF}
+Il pre-source forwarding implica un grosso dispendio di risorse in quanto le tabelle nei nodi hanno dimensioni molto grandi. Per ottimizzare tale meccanismo si è sviluppato \emph{iPSF} il quale, nel caso in cui due SPT calcolati su due radici diverse hanno un sotto-albero comune allora le tabelle dei nodi del sotto-albero comune avranno come valore del campo \emph{sorgente}, come possiamo vedere in \figurename\,\ref{img:ipsf} dove i nodi 1 e 3 hanno lo stesso sotto albero comune in formato dai nodi $\{2,4,5,8\}$
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{img/ipsf.png}
+\caption{Esempio di iPSF}\label{img:ipsf}
+\end{figure}
+\paragraph{PRF: Per-Reciver Forwarding}
+In questo caso il calcolo di chi è interessato al messaggio viene fatto direttamente all'origine e nell'header del messaggio vengono inseriti i nodi interessati. Per ogni nodo esistono due tabelle una che contiene i forwarding con i rispettivi predicati ed un'altra che contiene gli instradamenti ai nodi successi come mostrato in \figurename\,\ref{img:prf}
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{img/prf.png}
+\caption{Esempio di PRF}\label{img:prf}
+\end{figure}
+\paragraph{Algoritmi di routing}
+Per quanto riguarda gli algoritmi di routing possiamo averne di due tipi, il primo sono gli algoritmi di tipo \emph{Distance Vector} nei quali i nodi hanno soltanto una visione parziale della rete tramite la richiesta ai nodi vicini del loro stato e la risposta da parte di quest'ultimi, si ha così un algoritmo distribuito nel quale solo col passare del tempo un nodo ha la piena visione della rete. Nel caso degli algoritmi \emph{Link-State} tutti i nodi utilizzano un pacchetto denominato \emph{link-state packet} che viene inoltrato ad un nodo centrale il quale, dopo aver calcolato la rete, restituisce a tutti i nodi le informazioni su tale rete.
+\subsection{Comunicazione orientata agli stream}
+Fino ad ora abbiamo visto dei meccanismi per lo scambio di informazioni nei quali non ha importanza l'istante in cui avviene tale scambio. Esistono però forme di comunicazione in cui il tempo ha un ruolo fondamentale, come nel caso degli \emph{stream} audio nei quali per riprodurre un suono è necessario che i dati, nel caso stiamo parlando di un CD, siano riprodotti nell'ordine corretto e con una cadenza di 1/44100 sec. Eseguirli ad una velocità diversa riprodurrebbe un suono completamente diverso.
+\subsubsection{Supporto ai media continui}
+Il supporto allo scambio di informazioni dipendenti dal tempo spesso si traduce nel supporto ai media continui ovvero quei mezzi nei quali viene convogliata l'informazione come media media per la memorizzazione e la trasmissione o media per la presentazione. La caratteristica più importante dei media è come essi \emph{rappresentano} l'informazione. Gli \emph{stream} audio ad esempio possono essere codificati tramite campioni a 16 bit usando la PCM (\emph{pulse code modulation}). Nei \textbf{media continui} le relazioni temporali tra i diversi dati sono fondamentali per interpretare correttamente l'informazione in essa contenuta. Ad esempio il movimento può essere rappresentato da una serie di immagini successive visualizzate ad un intervallo di tempo $T$ regolare pari a 30-40 msec.
+\paragraph{Stream di dati}
+Per gestire lo scambio di informazioni continue i sistemi distribuiti forniscono supporto agli \textbf{stream di dati}. Uno stream non è altro che una sequenza continua di dati. Gli stream possono essere usati sia per i media continui che per quelli discreti, un esempio di stream di dati discreto sono le connessioni TCP/IP (stream di byte).\\
+Il tempo è fondamentale negli stream di dati continui, nella modalità di trasmissione \textbf{asincrona} i dati di uno stream vengono trasmessi in sequenza uno dopo l'altro ma è l'unico vincolo imposto, questo è solo il caso degli stream di dati discreti. \\
+Nella modalità di trasmissione \textbf{sincrona} viene definito un tempo massimo di trasmissione per ogni unità di dati in uno stream. Non è importante se un'unità è trasferita più velocemente del tempo massimo.
+Esiste infine una modalità di trasmissione \textbf{isocrona} nella quale è necessario che i dati siano trasferiti in un certo tempo. Ciò significa che i dati sono soggetti a vincoli di tempo sia minimi che massimi, questi limiti sono chiamati \emph{bounded (delay) jitter}, questa modalità è abbastanza importante per i sistemi multimediali in quanto ha un ruolo importante nella rappresentazione audio e video.\\
+Possiamo fare un'altra distinzione negli stream, essi possono essere \textbf{semplici} quando la sequenza di dati è unica, oppure \textbf{complessi} quando più stream semplici sono in relazione, tali stream sono chiamati \textbf{substream}. La relazione tra \emph{substream} di uno stream complesso dipende spesso dal tempo. L'importante è che i \emph{substream} siano continuamente sincronizzati. In altre parole le unità di dati provenienti da due substream devono essere trasmessi in coppia. Un possibile esempio di architettura di un sistema distribuito multimediale è quello mostrato in \figurename\,\ref{img:stream}.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{img/stream.png}
+\caption{Esempio di sistema multimediale}\label{img:stream}
+\end{figure}
+\subsubsection{Stream e qualità del servizio}
+I requisiti di tempo sono spesso espressi come requisiti della \textbf{qualità del servizio} (\textbf{QoS},\emph{quality of service}). Questi requisiti descrivono che cosa necessiti il sistema per assicurare che i vincoli siano rispettati. La QoS per gli stream di dati continui è essenzialmente relativa al tempo, al volume e all'affidabilità questo significa specificare:
+\begin{itemize}
+\item il \emph{bit rate} a cui devono essere trasportati i dati;
+\item il tempo massimo di \emph{set up} di una sessione (quando un applicazione può iniziare ad inviare dati);
+\item il tempo di trasporto massimo;
+\item la varianza massima del tempo di trasmissione o \emph{jitter};
+\item il tempo massimo di risposta.
+\end{itemize}
+Tuttavia la maggior parte dei sistemi distribuiti orientati agli stream è costruita sullo stack IP il quale è costituito da un servizio \emph{datagram} di tipo \emph{best-effort}  il quale permette di cancellare pacchetti ogni qual volta la comunicazione diviene troppo pesante.
+\paragraph{Garantire la QoS}
+Visto i problemi introdotti dall'utilizzo del protocollo IP il sistema distribuito può cercare di sopperire alla mancanza di qualità del servizio.\\
+Prima di tutto l'IP permette di differenziare delle classi di dati per mezzo dei suoi \textbf{servizi differenziati}. Ad esempio un host può marcare i suoi pacchetti come appartenenti alla classe di \textbf{inoltro rapido} che indica che il pacchetto deve essere inoltrato dal router con priorità assoluta. Inoltre esiste una classe di \textbf{inoltro assicurato}.\\
+Oltre a soluzioni a livello di rete, anche un sistema distribuito può usare alcuni accorgimenti per migliorare le prestazioni. Uno di questi è l'utilizzo di \emph{buffer} per ridurre lo \emph{jitter}; il principio è semplice ed è mostrato in \figurename\,\ref{img:buffer}; il meccanismo prevede la memorizzazione dei pacchetti per un certo tempo massimo prima di passare i pacchetti all'applicazione in modo da avere sempre dei pacchetti a disposizione. Ovviamente può succedere che alcuni pacchetti arrivino con un ritardo maggiore del tempo di buffer questo causerà dei vuoti nello stream. Una soluzione è quella di aumentare il tempo di buffer ma questo causa un aumento del tempo di \emph{set-up} dell'applicazione.\\
+\begin{figure}
+\centering
+\includegraphics[scale=0.35]{img/buffer.png}
+\caption{Esempio di utilizzo del buffer}\label{img:buffer}
+\end{figure}
+Un altro problema da affronta è la perdita di pacchetti, in quanto è inammissibile richiedere il rinvio dei pacchetti al mittente; è quindi necessario applicare delle tecniche di correzione degli errori. Una tecnica è quella di codificare i pacchetti in modo tale che qualsiasi $k$ pacchetti persi tra gli $n$ ricevuti siano sufficienti per ricostruire $k$ pacchetti corretti. Un altro problema è quando un pacchetto contiene molti frame audio e video, in questo caso l'utente può percepire un notevole vuoto nella riproduzione. Tale vuoto può essere aggirato dall'uso di frame \emph{interleaving} come mostrato nella \figurename\,\ref{img:interleaving} in questo modo il vuoto viene distribuito su più frame e si nota meno; questo meccanismo tuttavia richiede un buffer più grande.
+\begin{figure}
+\centering
+\includegraphics[scale=0.3]{img/interleaving.png}
+\caption{Applicazione del meccanismo di interleaving}\label{img:interleaving}
+\end{figure}
+\subsubsection{Sincronizzazione degli stream}
+Un elemento essenziale dei sistemi multimediali è che diversi stream eventualmente sotto forma di stream complesso, sono sincronizzati l'uno con l'altro. Sincronizzare più stream significa rispettare alcuni vincoli temporali tra gli stream.\\
+Esistono diversi problemi di sincronizzazione come ad esempio la sincronizzazione di stream audio e video in un film il quale prende il nome di \emph{lip synchronization}, un altro è il problema di sincronizzare i due substream che compongono uno stream per l'audio stereo.\\
+La sincronizzazione avviene a livello delle unità di dati di cui è fatto uno stream. In altre parole possiamo sincronizzare due stream solo tra unità di dati. La scelta di che cosa sia un'unità di dati dipende molto dal livello di astrazione a cui è visto lo stream.
+Consideriamo uno stream audio di un CD; tale stream appare come una sequenza di campioni a 16bit con una frequenza di 44.1 kHz, la sincronizzazione con altri stream audio potrebbe avvenire ogni $23\mu sec$
+\paragraph{Meccanismi di sincronizzazione}
+Prima di parlare di come sincronizzare due stream dobbiamo innanzitutto distinguere i meccanismi di base per la sincronizzazione di due stream dalla distribuzione di questi meccanismi in rete.\\
+Come per la granularità sulle unità di dati anche i meccanismi di sincronizzazione possono lavora a diversi livelli di astrazione. A livello più basso la sincronizzazione viene fatta sulle unità di dati. In sostanza c'è un processo che esegue semplicemente delle operazioni di lettura e scrittura su molti stream assicurandosi che queste operazioni rispettino i determinati vincoli temporali. L'inconveniente di questo tipo di sincronizzazione è che l'applicazione è completamente responsabile dell'implementazione della sincronizzazione. Un approccio migliore è quello di fornire all'applicazione un'interfaccia che le consenta di controllare più facilmente lo stream come mostrato in \figurename\,\ref{img:sincrostream}. Nei sistemi middleware per i media offrono una serie di interfacce per il controllo degli stream audio e video. Ogni dispositivo e ogni stream possiedono la loro interfaccia di alto livello inclusa quella per la notifica a un'applicazione di un cero evento.\\
+Un altro aspetto da considerare è la distribuzione dei meccanismi di sincronizzazione. Nel caso sia il ricevente a dover sincronizzare uno stream complesso costituito da diversi substream esso deve sapere esattamente come procedere; in altre parole deve avere una \emph{specifica della sincronizzazione} completa e disponibile localmente. In realtà le informazioni sulla sincronizzazione vengono fornite implicitamente inviando in \emph{multiplexer} i diversi substream in un unico stream.
+\begin{figure}
+\centering
+\includegraphics[scale=0.35]{img/sincrostream.png}
+\caption{Sincronizzazione degli stream tramite interfacce}\label{img:sincrostream}
+\end{figure}
